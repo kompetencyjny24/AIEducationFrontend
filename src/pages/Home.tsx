@@ -4,35 +4,33 @@ import ImageBG from "../assets/HomeBG.png";
 
 const Home = () => {
   return (
-    <div className="w-[calc(100dvh)] md:w-screen flex flex-col items-center bg-black">
-      
-      <div className="max-h-[1280px] min-h-[500px] w-full bg-black flex justify-center">
+    <div className="content-center items-center bg-[#EDDCD2] flex flex-col gap-0 justify-start overflow-hidden p-0">
 
-        <div className="relative w-full max-w-[1920px] flex items-center justify-center">
+      <div className="content-center items-center bg-black flex flex-none flex-col flex-no-wrap gap-0 h-screen justify-center overflow-hidden p-24 relative w-full">
 
-          <img src={ImageBG} className="absolute left-0 top-0 h-full w-full object-cover" />
-          
-          <div className="absolute inset-0 bg-black opacity-50 h-full" />
+        <img src={ImageBG} className="grid flex-none h-full justify-center overflow-hidden p-0 absolute w-full object-cover z-0" />
 
-          <div className="flex flex-col justify-center items-center z-10 text-center">
+        <div className="content-center items-center bg-black flex flex-none flex-col flex-no-wrap justify-center overflow-hidden relative w-fit px-10 z-2 rounded-3xl">
 
-            <h1 className="md:text-[200px] text-[96px] font-black text-white">
+          <h1 className="md:text-[200px] text-[64px] font-black text-white">
               NAZWA
             </h1>
 
-            <Link
-            to="/generate" 
-            className="mt-8 px-8 py-4 bg-orange-500 text-white text-xl font-bold rounded-full">
-              START
-            </Link>
+        </div>
 
-          </div>
+        <div className="flex flex-col justify-center items-center z-10 text-center">
+
+          <Link
+          to="/generate" 
+          className="mt-8 px-8 py-4 bg-orange-500 text-white text-xl font-bold rounded-full">
+            START
+          </Link>
 
         </div>
 
       </div>
 
-      <div className="bg-[#EDDCD2] w-[calc(100dvh)] md:w-screen flex justify-center">
+      <div className="flex justify-center">
 
         <div className="flex items-center w-full h-[500px] max-w-[1000px]">
           <div className="text-start text-black max-w-[600px]">
