@@ -5,7 +5,7 @@ import Generate from "./pages/Generate";
 
 function App() {
   return (
-    <div className="h-screen w-screen flex justify-center">
+    <div>
 
       <Router>
         <Routes>
