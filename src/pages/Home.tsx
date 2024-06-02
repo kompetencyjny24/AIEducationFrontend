@@ -12,7 +12,7 @@ const Home = () => {
 
         <div className="content-center items-center bg-black flex flex-none flex-col flex-no-wrap justify-center overflow-hidden relative w-fit px-10 z-2 rounded-3xl">
 
-          <h1 className="md:text-[200px] text-[64px] font-black text-white">
+          <h1 className="md:text-[200px] text-[96px] font-black text-white">
               NAZWA
             </h1>
 
@@ -22,7 +22,7 @@ const Home = () => {
 
           <Link
           to="/generate" 
-          className="mt-8 px-8 py-4 bg-orange-500 text-white text-xl font-bold rounded-full">
+          className="mt-8 px-8 py-4 bg-orange-500 text-white md:text-3xl text-xl font-bold rounded-full">
             START
           </Link>
 
@@ -30,17 +30,22 @@ const Home = () => {
 
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center w-screen py-16 px-5">
 
-        <div className="flex items-center w-full h-[500px] max-w-[1000px]">
-          <div className="text-start text-black max-w-[600px]">
-            <p className="text-md font-medium">
-              Revolutionize
+        <div className="flex items-start w-full max-w-[1000px]">
+
+          <div className="flex flex-col gap-10 text-start text-black">
+
+            <p className="text-lg font-medium">
+              Kolejna klasówka do wymyślenia?
             </p>
-            <h1 className="text-5xl font-bold pt-10">
-              Vanish into a world where task creation becomes too easy—it’s unsettling.
+
+            <h1 className="md:text-4xl text-3xl font-bold max-w-[600px]">
+              Zamiast wymyślać wszystkie zadania na kolejną klasówkę od zera, lub korzystać z gotowców - daj nam wygenerować je dla Ciebie, za Ciebie!
             </h1>
+
           </div>
+
         </div>
 
       </div>
