@@ -39,7 +39,7 @@ const MultiStepForm: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-md mx-auto my-10">
+    <div className="max-w-md bg-[#EDDCD2] mx-auto my-10">
       {step === 1 && <Step step={step} nextStep={nextStep} prevStep={prevStep} setParam={setSubject} stepTitle='Pick your subject' options={subjects} />}
       {step === 2 && <Step step={step} nextStep={nextStep} prevStep={prevStep} setParam={setTopic} stepTitle='Pick your topic' options={topics} />}
       {step === 3 && <Step step={step} nextStep={nextStep} prevStep={prevStep} setParam={setGrade} stepTitle='Choose your school grade' options={grades} />}
