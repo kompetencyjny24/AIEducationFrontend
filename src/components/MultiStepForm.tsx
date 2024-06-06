@@ -13,76 +13,119 @@ export const MUI_ERROR = {
   placeholder: undefined,
   onPointerEnterCapture: undefined,
   onPointerLeaveCapture: undefined
+};
+
+const subjects: string[] = [
+  "Math",
+  "Physic",
+  // "Biology"
+];
+
+const topics: { [key: string]: string[] } = {
+  "Math": ["Algebra", "Calculus", "Geometry"],
+  "Physic": ["Mechanics", "Thermodynamics", "Optics"],
+  // "Biology": ["Genetics", "Ecology", "Anatomy"]
+};
+
+const grades: string[] = [
+  "6 primary school", 
+  "7 primary school",
+  "8 primary school"
+];
+
+const hobbies: string[] = [
+  "Sport",
+  "Cooking",
+  "Games",
+  "Art",
+  "Reading"
+];
+
+const stepsData = [
+  { label: "Subject", icon: PencilIcon, description: "Select Subject", options: subjects },
+  { label: "Topic", icon: BookOpenIcon, description: "Select Topic", options: [] }, // Options to be updated dynamically
+  { label: "Grade", icon: AcademicCapIcon, description: "Select Grade", options: grades },
+  { label: "Hobby", icon: PuzzlePieceIcon, description: "Select Hobby", options: hobbies }
+];
+
+export type FINAL_PARAM = {
+  subject: string,
+  topic: string,
+  grade: string,
+  hobby: string,
 }
 
 const MultiStepForm: React.FC = () => {
-  const [step, setStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
+  const [isFinalStep, setIsFinalStep] = useState(false);
+
   const [subject, setSubject] = useState('');
   const [topic, setTopic] = useState('');
   const [grade, setGrade] = useState('');
   const [hobby, setHobby] = useState('');
+
   const navigate = useNavigate();
 
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [isLastStep, setIsLastStep] = React.useState(false);
-  const [isFirstStep, setIsFirstStep] = React.useState(false);
-  const [isFinalStep, setIsFinalStep] = useState(false);
+  const steps = stepsData.map(step => ({
+    ...step,
+    options: step.label === "Topic" ? (subject ? topics[subject] : []) : step.options,
+    value: getValue(step.label),
+    setValue: getSetValueFunction(step.label)
+  }));
 
-  // const handleNext = () => !isLastStep && setActiveStep((cur) => cur + 1);
-  // const handlePrev = () => !isFirstStep && setActiveStep((cur) => cur - 1);
+  function getValue(label: string) {
+    switch (label) {
+      case "Subject":
+        return subject;
+      case "Topic":
+        return topic;
+      case "Grade":
+        return grade;
+      case "Hobby":
+        return hobby;
+      default:
+        return '';
+    }
+  }
 
-  useEffect(() => {
-    setIsLastStep(activeStep === steps.length - 1);
-    setIsFirstStep(activeStep === 0);
-  }, [activeStep]);
+  function getSetValueFunction(label: string) {
+    switch (label) {
+      case "Subject":
+        return setSubject;
+      case "Topic":
+        return setTopic;
+      case "Grade":
+        return setGrade;
+      case "Hobby":
+        return setHobby;
+      default:
+        return () => { };
+    }
+  }
 
   const handleNext = () => {
     if (steps[activeStep].value) {
-      setActiveStep((cur) => Math.min(cur + 1, steps.length - 1));
+      setActiveStep(cur => Math.min(cur + 1, steps.length - 1));
     } else {
       alert(`Please select a ${steps[activeStep].label.toLowerCase()} before proceeding.`);
     }
   };
 
-  const handlePrev = () => setActiveStep((cur) => Math.max(cur - 1, 0));
+  const handlePrev = () => setActiveStep(cur => Math.max(cur - 1, 0));
 
   const handleGenerate = () => {
-    setIsFinalStep(true);
+    const params: FINAL_PARAM = {
+      subject: subject,
+      topic: topic,
+      grade: grade,
+      hobby: hobby,
+    }
+    navigate('/final', { state: params });
   };
 
-  if (isFinalStep) {
-    return <Final subject={subject} topic={topic} grade={grade} hobby={hobby} />;
-  }
-
-  const subjects: string[] = [
-    "Math",
-    "Physic",
-    "Biology"
-  ];
-  const topics: string[] = [
-    "Math",
-    "Physic",
-    "Biology"
-  ];
-  const grades: string[] = [
-    "Math",
-    "Physic",
-    "Biology"
-  ];
-  const hobbies: string[] = [
-    "Sport",
-    "Cookking",
-    "Games",
-    "Art",
-    "Reading"
-  ];
-
-  const steps = [
-    { label: "Subject", icon: PencilIcon, description: "Select Subject", options: subjects, value: subject, setValue: setSubject },
-    { label: "Topic", icon: BookOpenIcon, description: "Select Topic", options: topics, value: topic, setValue: setTopic },
-    { label: "Grade", icon: AcademicCapIcon, description: "Select Grade", options: grades, value: grade, setValue: setGrade },
-    { label: "Hobby", icon: PuzzlePieceIcon, description: "Select Hobby", options: hobbies, value: hobby, setValue: setHobby },
-  ];
+  // if (isFinalStep) {
+  //   return <Final subject={subject} topic={topic} grade={grade} hobby={hobby} />;
+  // }
 
   return (
     <div className="w-full px-24 py-4">
@@ -102,7 +145,6 @@ const MultiStepForm: React.FC = () => {
         ))}
       </Stepper>
 
-
       <div className="mt-28">
         <select
           className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -116,17 +158,16 @@ const MultiStepForm: React.FC = () => {
         </select>
       </div>
 
-
       <div className="mt-32 flex justify-between">
-        <Button onClick={handlePrev} disabled={isFirstStep} {...MUI_ERROR}>
+        <Button onClick={handlePrev} disabled={activeStep === 0} {...MUI_ERROR}>
           Prev
         </Button>
-        {isLastStep ? (
-          <Button onClick={handleGenerate} disabled={steps[activeStep].value === ''} {...MUI_ERROR}>
+        {activeStep === steps.length - 1 ? (
+          <Button onClick={handleGenerate} disabled={!steps[activeStep].value} {...MUI_ERROR}>
             Generate
           </Button>
         ) : (
-          <Button onClick={handleNext} disabled={steps[activeStep].value === ''} {...MUI_ERROR}>
+          <Button onClick={handleNext} disabled={!steps[activeStep].value} {...MUI_ERROR}>
             Next
           </Button>
         )}

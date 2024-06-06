@@ -11,12 +11,16 @@ function App() {
       <Router>
         <Routes>
           <Route
-          path="/"
-          element={ <Home /> } />
+            path="/"
+            element={<Home />} />
 
           <Route
-          path="/generate"
-          element={ <Generate /> } />
+            path="/generate"
+            element={<Generate />} />
+
+          <Route
+            path="/final"
+            element={<Final />} />
         </Routes>
       </Router>
 
