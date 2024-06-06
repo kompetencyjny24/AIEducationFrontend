@@ -70,8 +70,9 @@ const MultiStepForm: React.FC = () => {
     "Biology"
   ];
   const hobbies: string[] = [
+    "None",
     "Sport",
-    "Cookking",
+    "Cooking",
     "Games",
     "Art",
     "Reading"
