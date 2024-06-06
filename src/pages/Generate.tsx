@@ -16,7 +16,7 @@ const Generate = () => {
 
   return (
     <div className="bg-[#EDDCD2] overflow-hidden p-0 min-h-dvh">
-      <div className="max-w-md mx-auto my-10">
+      <div className="max-w-4xl mx-auto my-10">
         <MultiStepForm/>
       </div>
     </div>
