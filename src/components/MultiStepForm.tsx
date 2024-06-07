@@ -15,34 +15,34 @@ export const MUI_ERROR = {
 };
 
 const subjects: string[] = [
-  "Math",
-  "Physic",
+  "Matematyka",
+  "Fizyka",
 ];
 
 const topics: { [key: string]: string[] } = {
-  "Math": ["Algebra", "Calculus", "Geometry"],
-  "Physic": ["Mechanics", "Thermodynamics", "Optics"],
+  "Matematyka": ["Algebra", "Geometria"],
+  "Fizyka": ["Termodynamika", "Optyka"],
 };
 
 const grades: string[] = [
-  "6 primary school", 
-  "7 primary school",
-  "8 primary school"
+  "6 klasa podstawówki", 
+  "7 klasa podstawówki",
+  "8 klasa podstawówki"
 ];
 
 const hobbies: string[] = [
   "Sport",
-  "Cooking",
-  "Games",
-  "Art",
-  "Reading"
+  "Gotowanie",
+  "Gry",
+  "Sztuka",
+  "Czytanie"
 ];
 
 const stepsData = [
-  { label: "Subject", icon: PencilIcon, description: "Select Subject", options: subjects },
-  { label: "Topic", icon: BookOpenIcon, description: "Select Topic", options: [] }, // Options to be updated dynamically
-  { label: "Grade", icon: AcademicCapIcon, description: "Select Grade", options: grades },
-  { label: "Hobby", icon: PuzzlePieceIcon, description: "Select Hobby", options: hobbies }
+  { label: "Przedmiot", icon: PencilIcon, description: "Wybierz Przedmiot", options: subjects },
+  { label: "Temat", icon: BookOpenIcon, description: "Wybierz Temat", options: [] }, // Options to be updated dynamically
+  { label: "Klasa", icon: AcademicCapIcon, description: "Wybierz Klasę", options: grades },
+  { label: "Hobby", icon: PuzzlePieceIcon, description: "Wybierz Hobby", options: hobbies }
 ];
 
 export type FINAL_PARAM = {
@@ -64,18 +64,18 @@ const MultiStepForm: React.FC = () => {
 
   const steps = stepsData.map(step => ({
     ...step,
-    options: step.label === "Topic" ? (subject ? topics[subject] : []) : step.options,
+    options: step.label === "Temat" ? (subject ? topics[subject] : []) : step.options,
     value: getValue(step.label),
     setValue: getSetValueFunction(step.label)
   }));
 
   function getValue(label: string) {
     switch (label) {
-      case "Subject":
+      case "Przedmiot":
         return subject;
-      case "Topic":
+      case "Temat":
         return topic;
-      case "Grade":
+      case "Klasa":
         return grade;
       case "Hobby":
         return hobby;
@@ -86,11 +86,11 @@ const MultiStepForm: React.FC = () => {
 
   function getSetValueFunction(label: string) {
     switch (label) {
-      case "Subject":
+      case "Przedmiot":
         return setSubject;
-      case "Topic":
+      case "Temat":
         return setTopic;
-      case "Grade":
+      case "Klasa":
         return setGrade;
       case "Hobby":
         return setHobby;
@@ -103,7 +103,7 @@ const MultiStepForm: React.FC = () => {
     if (steps[activeStep].value) {
       setActiveStep(cur => Math.min(cur + 1, steps.length - 1));
     } else {
-      alert(`Please select a ${steps[activeStep].label.toLowerCase()} before proceeding.`);
+      alert(`Wybierz ${steps[activeStep].label.toLowerCase()} żeby kontynuować`);
     }
   };
 
@@ -143,7 +143,7 @@ const MultiStepForm: React.FC = () => {
           value={steps[activeStep].value}
           onChange={(e) => steps[activeStep].setValue(e.target.value)}
         >
-          <option value="">Select {steps[activeStep].label.toLowerCase()}</option>
+          <option value="">Wybierz {steps[activeStep].label.toLowerCase()}</option>
           {steps[activeStep].options.map((option, index) => (
             <option key={index} value={option}>{option}</option>
           ))}
@@ -152,15 +152,15 @@ const MultiStepForm: React.FC = () => {
 
       <div className="mt-32 flex justify-between">
         <Button onClick={handlePrev} disabled={activeStep === 0} {...MUI_ERROR}>
-          Prev
+          Poprzedni
         </Button>
         {activeStep === steps.length - 1 ? (
           <Button onClick={handleGenerate} disabled={!steps[activeStep].value} {...MUI_ERROR}>
-            Generate
+            Generuj
           </Button>
         ) : (
           <Button onClick={handleNext} disabled={!steps[activeStep].value} {...MUI_ERROR}>
-            Next
+            Następny
           </Button>
         )}
       </div>
