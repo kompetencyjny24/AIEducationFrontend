@@ -123,9 +123,46 @@ const MultiStepForm: React.FC = () => {
     navigate('/final', { state: params });
   };
 
+<<<<<<< HEAD
   // if (isFinalStep) {
   //   return <Final subject={subject} topic={topic} grade={grade} hobby={hobby} />;
   // }
+=======
+  if (isFinalStep) {
+    return <Final subject={subject} topic={topic} grade={grade} hobby={hobby} />;
+  }
+
+  const subjects: string[] = [
+    "Math",
+    "Physic",
+    "Biology"
+  ];
+  const topics: string[] = [
+    "Math",
+    "Physic",
+    "Biology"
+  ];
+  const grades: string[] = [
+    "Math",
+    "Physic",
+    "Biology"
+  ];
+  const hobbies: string[] = [
+    "None",
+    "Sport",
+    "Cooking",
+    "Games",
+    "Art",
+    "Reading"
+  ];
+
+  const steps = [
+    { label: "Subject", icon: PencilIcon, description: "Select Subject", options: subjects, value: subject, setValue: setSubject },
+    { label: "Topic", icon: BookOpenIcon, description: "Select Topic", options: topics, value: topic, setValue: setTopic },
+    { label: "Grade", icon: AcademicCapIcon, description: "Select Grade", options: grades, value: grade, setValue: setGrade },
+    { label: "Hobby", icon: PuzzlePieceIcon, description: "Select Hobby", options: hobbies, value: hobby, setValue: setHobby },
+  ];
+>>>>>>> a4929a265401ca338cfbc707cba751834e0b715f
 
   return (
     <div className="w-full px-24 py-4">
