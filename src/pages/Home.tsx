@@ -1,48 +1,73 @@
 import { Link } from "react-router-dom";
 
-import ImageBG from "../assets/HomeBG.png";
+import { Button, Chip } from "@material-tailwind/react";
+
+import Header from "../components/Header";
+
+import Teacher from "../assets/main_page_teacher.jpg"
+
+export const MUI_ERROR = {
+  placeholder: undefined,
+  onPointerEnterCapture: undefined,
+  onPointerLeaveCapture: undefined
+};
 
 const Home = () => {
   return (
-    <div className="content-center items-center bg-[#EDDCD2] flex flex-col gap-0 justify-start overflow-hidden p-0">
+    <div className="w-screen h-fit flex justify-center">
 
-      <div className="content-center items-center bg-black flex flex-none flex-col flex-no-wrap gap-0 h-screen justify-center overflow-hidden p-24 relative w-full">
+      <div className="w-full max-w-[1200px]">
 
-        <img src={ImageBG} className="grid flex-none h-full justify-center overflow-hidden p-0 absolute w-full object-cover z-0" />
+        <Header />
 
-        <div className="content-center items-center bg-black flex flex-none flex-col flex-no-wrap justify-center overflow-hidden relative w-fit px-10 z-2 rounded-3xl">
+        <div className="w-full h-fit mt-8">
 
-          <h1 className="md:text-[200px] text-[96px] font-black text-white">
-              NAZWA
-            </h1>
+          <div className="relative h-fit w-full bg-[#131650] rounded-3xl">
 
-        </div>
+            <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_2px,transparent_2px),linear-gradient(to_bottom,#4f4f4f2e_2px,transparent_2px)] bg-[size:24px_24px] rounded-3xl"/>
 
-        <div className="flex flex-col justify-center items-center z-10 text-center">
+            <div className="relative w-full h-fit p-16 flex text-white">
 
-          <Link
-          to="/generate" 
-          className="mt-8 px-8 py-4 bg-orange-500 text-white md:text-3xl text-xl font-bold rounded-full">
-            START
-          </Link>
+              <div className="flex-1 flex flex-col justify-center gap-2">
 
-        </div>
+                <div className="flex">
 
-      </div>
+                  <Chip size="lg" variant="outlined" value="24/7 AI" color="yellow" 
+                  className="w-fit py-4 px-6 rounded-full border-2 text-md" />
 
-      <div className="flex justify-center w-screen py-16 px-5">
+                </div>
+                
+                <div className="mt-3 text-5xl font-medium max-w-[480px]">
+                  Masz już dość układania zadań samodzielnie na każdą klasówkę?
+                </div>
 
-        <div className="flex items-start w-full max-w-[1000px]">
+                <div className="text-lg">
+                  Wygenerujemy je za Ciebie, dla Ciebie!
+                </div>
 
-          <div className="flex flex-col gap-10 text-start text-black">
+                <Link
+                to="/generate"
+                className="mt-6">
+                  
+                  <Button variant="filled" size="lg" color="teal" {...MUI_ERROR}>
+                    Generuj zadanie
+                  </Button>
 
-            <p className="text-lg font-medium">
-              Kolejna klasówka do wymyślenia?
-            </p>
+                </Link>
 
-            <h1 className="md:text-4xl text-3xl font-bold max-w-[600px]">
-              Zamiast wymyślać wszystkie zadania na kolejną klasówkę od zera, lub korzystać z gotowców - daj nam wygenerować je dla Ciebie, za Ciebie!
-            </h1>
+              </div>
+
+              <div className="flex-1 flex justify-center relative my-8">
+
+                <div className="absolute top-0 left-1/5 transform translate-x-4 -translate-y-4 rotate-3 bg-pink-300 w-4/5 h-full rounded-2xl z-0" />
+                
+                <img 
+                src={Teacher}
+                className="rounded-2xl w-4/5 relative z-10"/>
+
+              </div>
+
+            </div>
 
           </div>
 
