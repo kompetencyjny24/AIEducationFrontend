@@ -26,7 +26,7 @@ const Home = () => {
 
             <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_2px,transparent_2px),linear-gradient(to_bottom,#4f4f4f2e_2px,transparent_2px)] bg-[size:24px_24px] rounded-3xl"/>
 
-            <div className="relative w-full h-fit p-16 flex text-white">
+            <div className="relative w-full h-fit px-16 py-8 flex text-white">
 
               <div className="flex-1 flex flex-col justify-center gap-2">
 
@@ -49,7 +49,8 @@ const Home = () => {
                 to="/generate"
                 className="mt-6">
                   
-                  <Button variant="filled" size="lg" color="teal" {...MUI_ERROR}>
+                  <Button variant="filled" size="lg" color="teal" {...MUI_ERROR}
+                  className="py-4 px-6 text-md">
                     Generuj zadanie
                   </Button>
 
