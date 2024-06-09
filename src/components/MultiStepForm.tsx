@@ -39,6 +39,7 @@ const grades: string[] = [
 ];
 
 const hobbies: string[] = [
+  "Brak",
   "Sport",
   "Gotowanie",
   "Gry",
@@ -65,7 +66,7 @@ const MultiStepForm: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [topic, setTopic] = useState('');
   const [grade, setGrade] = useState('');
-  const [hobby, setHobby] = useState('');
+  const [hobby, setHobby] = useState('Brak'); // Default value set to "Brak"
 
   const navigate = useNavigate();
 
