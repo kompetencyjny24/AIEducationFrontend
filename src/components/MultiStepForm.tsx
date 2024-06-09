@@ -7,6 +7,7 @@ import {
   PuzzlePieceIcon
 } from "@heroicons/react/24/outline";
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 export const MUI_ERROR = {
   placeholder: undefined,
@@ -136,6 +137,9 @@ const MultiStepForm: React.FC = () => {
 
   return (
     <div className="w-full px-24 py-4">
+
+      <Header />
+
       <Stepper activeStep={activeStep} {...MUI_ERROR}>
         {steps.map((step, index) => (
           <Step key={index} onClick={() => { }} {...MUI_ERROR}>
