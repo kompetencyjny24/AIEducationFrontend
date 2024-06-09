@@ -18,7 +18,7 @@ const Home = () => {
 
       <div className="w-full max-w-[1200px]">
 
-        <Header />
+        <Header generate={ true } />
 
         <div className="w-full h-fit mt-8">
 
