@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Stepper, Step, Button, Typography } from "@material-tailwind/react";
 import {
   PencilIcon,
@@ -7,6 +7,7 @@ import {
   PuzzlePieceIcon
 } from "@heroicons/react/24/outline";
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 export const MUI_ERROR = {
   placeholder: undefined,
@@ -19,18 +20,27 @@ const subjects: string[] = [
   "Fizyka",
 ];
 
-const topics: { [key: string]: string[] } = {
-  "Matematyka": ["Algebra", "Geometria"],
-  "Fizyka": ["Termodynamika", "Optyka"],
+const topics: { [key: string]: { [key: string]: string[] } } = {
+  "Matematyka": {
+    "6 klasa podstawówki": ["Algebra 6", "Geometria 6"],
+    "7 klasa podstawówki": ["Algebra 7", "Geometria 7"],
+    "8 klasa podstawówki": ["Algebra 8", "Geometria 8"]
+  },
+  "Fizyka": {
+    "6 klasa podstawówki": ["Termodynamika 6", "Optyka 6"],
+    "7 klasa podstawówki": ["Termodynamika 7", "Optyka 7"],
+    "8 klasa podstawówki": ["Termodynamika 8", "Optyka 8"]
+  },
 };
 
 const grades: string[] = [
-  "6 klasa podstawówki", 
+  "6 klasa podstawówki",
   "7 klasa podstawówki",
   "8 klasa podstawówki"
 ];
 
 const hobbies: string[] = [
+  "Brak",
   "Sport",
   "Gotowanie",
   "Gry",
@@ -40,8 +50,8 @@ const hobbies: string[] = [
 
 const stepsData = [
   { label: "Przedmiot", icon: PencilIcon, description: "Wybierz Przedmiot", options: subjects },
-  { label: "Temat", icon: BookOpenIcon, description: "Wybierz Temat", options: [] }, // Options to be updated dynamically
   { label: "Klasa", icon: AcademicCapIcon, description: "Wybierz Klasę", options: grades },
+  { label: "Temat", icon: BookOpenIcon, description: "Wybierz Temat", options: [] }, // Options to be updated dynamically
   { label: "Hobby", icon: PuzzlePieceIcon, description: "Wybierz Hobby", options: hobbies }
 ];
 
@@ -54,17 +64,23 @@ export type FINAL_PARAM = {
 
 const MultiStepForm: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
-
   const [subject, setSubject] = useState('');
   const [topic, setTopic] = useState('');
   const [grade, setGrade] = useState('');
-  const [hobby, setHobby] = useState('');
+  const [hobby, setHobby] = useState('Brak'); // Default value set to "Brak"
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Reset topic if subject or grade changes
+    if (activeStep === 2) {
+      setTopic('');
+    }
+  }, [subject, grade, activeStep]);
+
   const steps = stepsData.map(step => ({
     ...step,
-    options: step.label === "Temat" ? (subject ? topics[subject] : []) : step.options,
+    options: step.label === "Temat" ? (subject && grade ? topics[subject][grade] : []) : step.options,
     value: getValue(step.label),
     setValue: getSetValueFunction(step.label)
   }));
@@ -121,6 +137,9 @@ const MultiStepForm: React.FC = () => {
 
   return (
     <div className="w-full px-24 py-4">
+
+      <Header />
+
       <Stepper activeStep={activeStep} {...MUI_ERROR}>
         {steps.map((step, index) => (
           <Step key={index} onClick={() => { }} {...MUI_ERROR}>
