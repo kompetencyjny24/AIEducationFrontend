@@ -132,7 +132,7 @@ const MultiStepForm: React.FC = () => {
       grade: grade,
       hobby: hobby,
     }
-    navigate('/final', { state: params });
+    navigate('/review', { state: params });
   };
 
   return (

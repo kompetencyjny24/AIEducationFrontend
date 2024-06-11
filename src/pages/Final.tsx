@@ -2,19 +2,26 @@ import React, { useEffect, useState } from "react";
 import { Accordion, AccordionHeader, AccordionBody, Button, Spinner, Typography } from "@material-tailwind/react";
 import MultiStepForm, { FINAL_PARAM, MUI_ERROR } from "../components/MultiStepForm";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import publiAxios from "../hooks/publiAxios";
 
-interface FinalProps {
+export interface TaskProps {
     subject: string;
     topic: string;
     grade: string;
     hobby: string;
 }
 
+export interface TaskWithRedefinedPrompt {
+    taskParams: TaskProps;
+    redefinedPrompt: string;
+}
+
 interface Task {
-    taskQuestion: string;
+    prompt: string;
+    content: string;
     hint_1: string;
     hint_2: string;
-    result: string;
+    answer: string;
 }
 
 interface IconProps {
@@ -45,33 +52,39 @@ const Final: React.FC<{}> = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const params: FINAL_PARAM = location.state;
-    console.log(params);
+    const params: TaskWithRedefinedPrompt = location.state;
+    // console.log(params);
 
 
     useEffect(() => {
         setLoading(true);
-        if (params.subject === '' || params.topic === '' || params.grade === '' || params.hobby === '') {
+        if (params.taskParams.subject === '' || params.taskParams.topic === '' || params.taskParams.grade === '' || params.taskParams.hobby === '' || params.redefinedPrompt === '') {
             setLoading(false);
             return;
         }
         const fetchData = async () => {
-            try {
-                // Simulate API call
-                const response = await new Promise<Task[]>(resolve => {
-                    setTimeout(() => {
-                        resolve([
-                            { taskQuestion: 'What is 2+2?', hint_1: 'It is more than 3', hint_2: 'It is less than 5', result: '4' },
-                            { taskQuestion: 'What is the capital of France?', hint_1: 'It starts with P', hint_2: 'It is known for the Eiffel Tower', result: 'Paris' },
-                        ]);
-                    }, 1000);
-                });
-                setData(response);
-            } catch (err) {
+            publiAxios.post('/task', {
+                "subject": "",
+                "predefinedPrompt": params.redefinedPrompt,
+                "subjectSection": "",
+                "hobby": "",
+                "grade": ""
+            }).then(response => {
+                console.log(response);
+                setData([
+                    {
+                        prompt: response.data.prompt,
+                        content: response.data.content,
+                        hint_1: response.data.hints[0],
+                        hint_2: response.data.hints[1],
+                        answer: response.data.answer
+                    }
+                ]);
+            }).catch(error => {
                 setError('Failed to fetch tasks');
-            } finally {
+            }).finally(() => {
                 setLoading(false);
-            }
+            });
         };
         fetchData();
     }, []);
@@ -112,7 +125,7 @@ const Final: React.FC<{}> = () => {
                         (!loading && error === '') &&
                         data.map((task, index) => (
                             <div key={index} className="mb-4 p-4 border rounded-lg bg-white shadow-md">
-                                <Typography variant="h6" {...MUI_ERROR}>{task.taskQuestion}</Typography>
+                                <Typography variant="h6" {...MUI_ERROR}>{task.content}</Typography>
                                 <Accordion open={open === index} icon={<Icon id={index} open={open} />} {...MUI_ERROR}>
                                     <AccordionHeader onClick={() => handleOpen(index)} {...MUI_ERROR}>Show Hint 1</AccordionHeader>
                                     <AccordionBody>
@@ -128,7 +141,7 @@ const Final: React.FC<{}> = () => {
                                 <Accordion open={open === index + 200} icon={<Icon id={index + 200} open={open} />} {...MUI_ERROR}>
                                     <AccordionHeader onClick={() => handleOpen(index + 200)} {...MUI_ERROR}>Show Result</AccordionHeader>
                                     <AccordionBody>
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>{task.result}</Typography>
+                                        <Typography className="text-gray-700" {...MUI_ERROR}>{task.answer}</Typography>
                                     </AccordionBody>
                                 </Accordion>
                             </div>

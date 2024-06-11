@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Generate from "./pages/Generate";
 import Final from "./pages/Final";
+import ReviewPrompt from "./components/ReviewPrompt";
 
 function App() {
   return (
@@ -21,6 +22,10 @@ function App() {
           <Route
             path="/final"
             element={<Final />} />
+
+<Route
+            path="/review"
+            element={<ReviewPrompt/>} />
         </Routes>
       </Router>
 
