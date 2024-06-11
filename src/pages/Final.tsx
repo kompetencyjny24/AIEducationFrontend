@@ -17,6 +17,7 @@ export interface TaskWithRedefinedPrompt {
 }
 
 interface Task {
+    id: string;
     prompt: string;
     content: string;
     hint_1: string;
@@ -73,6 +74,7 @@ const Final: React.FC<{}> = () => {
                 console.log(response);
                 setData([
                     {
+                        id: response.data.id,
                         prompt: response.data.prompt,
                         content: response.data.content,
                         hint_1: response.data.hints[0],
