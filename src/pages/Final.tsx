@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Accordion, AccordionHeader, AccordionBody, Button, Spinner, Typography } from "@material-tailwind/react";
-import MultiStepForm, { FINAL_PARAM, MUI_ERROR } from "../components/MultiStepForm";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import MultiStepForm, { FINAL_PARAM, MUI_ERROR } from "../components/MultiStepForm";
 import publiAxios from "../hooks/publiAxios";
+import { generateKey } from "crypto";
 
 export interface TaskProps {
     subject: string;
@@ -56,7 +57,6 @@ const Final: React.FC<{}> = () => {
     const params: TaskWithRedefinedPrompt = location.state;
     // console.log(params);
 
-
     useEffect(() => {
         setLoading(true);
         if (params.taskParams.subject === '' || params.taskParams.topic === '' || params.taskParams.grade === '' || params.taskParams.hobby === '' || params.redefinedPrompt === '') {
@@ -69,21 +69,21 @@ const Final: React.FC<{}> = () => {
                 "predefinedPrompt": params.redefinedPrompt,
                 "subjectSection": "",
                 "hobby": "",
-                "grade": ""
+                "grade": "",
+                "taskAmount": "5"
             }).then(response => {
                 console.log(response);
-                setData([
-                    {
-                        id: response.data.id,
-                        prompt: response.data.prompt,
-                        content: response.data.content,
-                        hint_1: response.data.hints[0],
-                        hint_2: response.data.hints[1],
-                        answer: response.data.answer
-                    }
-                ]);
+                const generatedTasks = response.data.generatedTasks.map((task: any) => ({
+                    id: task.id,
+                    prompt: response.data.prompt,
+                    content: task.content,
+                    hint_1: task.hints[0],
+                    hint_2: task.hints[1],
+                    answer: task.answer
+                }));
+                setData(generatedTasks);
             }).catch(error => {
-                setError('Failed to fetch tasks');
+                setError('Failed to fetch tasks' + error);
             }).finally(() => {
                 setLoading(false);
             });
@@ -96,7 +96,6 @@ const Final: React.FC<{}> = () => {
     };
 
     return (
-
         <div className="bg-[#EDDCD2] overflow-hidden p-0 min-h-dvh">
             <div className="max-w-4xl mx-auto my-10">
                 <div className="text-center w-full max-w-xlg p-4 justify-center">
@@ -110,7 +109,7 @@ const Final: React.FC<{}> = () => {
                     {
                         loading && <div className="bg-[#EDDCD2] overflow-hidden p-0 min-h-dvh flex items-center justify-center">
                             <div className="text-center">
-                                <Spinner className="h-12 w-12" {...MUI_ERROR} />
+                                <Spinner className="h-12 w-12"  {...MUI_ERROR}/>
                                 <Typography variant="h6" {...MUI_ERROR}>
                                     Generating
                                 </Typography>
@@ -124,7 +123,7 @@ const Final: React.FC<{}> = () => {
                         </Typography>
                     }
                     {
-                        (!loading && error === '') &&
+                        (!loading) && (error === '') &&
                         data.map((task, index) => (
                             <div key={index} className="mb-4 p-4 border rounded-lg bg-white shadow-md">
                                 <Typography variant="h6" {...MUI_ERROR}>{task.content}</Typography>
