@@ -1,6 +1,8 @@
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Button, Chip } from "@material-tailwind/react";
+import publiAxios from "../hooks/publiAxios";
 
 import Header from "../components/Header";
 
@@ -13,6 +15,21 @@ export const MUI_ERROR = {
 };
 
 const Home = () => {
+  const [taskCount, setTaskCount] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        publiAxios.get('/task/generated-amount')
+        .then(response => {
+            setTaskCount(response.data)
+        }).catch(error => {
+            console.log(error);
+        });
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="w-screen h-fit flex justify-center">
 
@@ -46,7 +63,7 @@ const Home = () => {
                 </div>
 
                 <Link
-                to="/generate"
+                to="/prepare_prompt"
                 className="mt-6">
                   
                   <Button variant="filled" size="lg" color="teal" {...MUI_ERROR}
@@ -71,6 +88,19 @@ const Home = () => {
             </div>
 
           </div>
+
+        </div>
+
+        <div className="w-full flex flex-col justify-center items-center mt-12">
+
+          <div className="font-medium text-5xl">
+
+            Tyle zadań już wygenerowaliśmy
+
+          </div>
+
+          <Chip size="lg" value={taskCount} color="amber" 
+          className="w-fit py-4 px-8 rounded-full border-2 text-4xl mt-7" />
 
         </div>
 

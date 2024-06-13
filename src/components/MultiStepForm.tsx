@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Stepper, Step, Button, Typography } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
 import {
   PencilIcon,
   BookOpenIcon,
   AcademicCapIcon,
-  PuzzlePieceIcon
+  PuzzlePieceIcon,
+  CalculatorIcon
 } from "@heroicons/react/24/outline";
 import { useNavigate } from 'react-router-dom';
-import Header from './Header';
 
 export const MUI_ERROR = {
   placeholder: undefined,
@@ -22,21 +23,21 @@ const subjects: string[] = [
 
 const topics: { [key: string]: { [key: string]: string[] } } = {
   "Matematyka": {
-    "6 klasa podstawówki": ["Algebra 6", "Geometria 6"],
-    "7 klasa podstawówki": ["Algebra 7", "Geometria 7"],
-    "8 klasa podstawówki": ["Algebra 8", "Geometria 8"]
+    "6": ["Algebra 6", "Geometria 6"],
+    "7": ["Algebra 7", "Geometria 7"],
+    "8": ["Algebra 8", "Geometria 8"]
   },
   "Fizyka": {
-    "6 klasa podstawówki": ["Termodynamika 6", "Optyka 6"],
-    "7 klasa podstawówki": ["Termodynamika 7", "Optyka 7"],
-    "8 klasa podstawówki": ["Termodynamika 8", "Optyka 8"]
+    "6": ["Termodynamika 6", "Optyka 6"],
+    "7": ["Termodynamika 7", "Optyka 7"],
+    "8": ["Termodynamika 8", "Optyka 8"]
   },
 };
 
 const grades: string[] = [
-  "6 klasa podstawówki",
-  "7 klasa podstawówki",
-  "8 klasa podstawówki"
+  "6",
+  "7",
+  "8"
 ];
 
 const hobbies: string[] = [
@@ -48,11 +49,22 @@ const hobbies: string[] = [
   "Czytanie"
 ];
 
+const amounts: number[] = [
+  1, 
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+]
+
 const stepsData = [
   { label: "Przedmiot", icon: PencilIcon, description: "Wybierz Przedmiot", options: subjects },
   { label: "Klasa", icon: AcademicCapIcon, description: "Wybierz Klasę", options: grades },
   { label: "Temat", icon: BookOpenIcon, description: "Wybierz Temat", options: [] }, // Options to be updated dynamically
-  { label: "Hobby", icon: PuzzlePieceIcon, description: "Wybierz Hobby", options: hobbies }
+  { label: "Hobby", icon: PuzzlePieceIcon, description: "Wybierz Hobby", options: hobbies },
+  { label: "Ilość Zadań", icon: CalculatorIcon, description: "Wybierz ilość zadań", options: amounts }
 ];
 
 export type FINAL_PARAM = {
@@ -60,6 +72,7 @@ export type FINAL_PARAM = {
   topic: string,
   grade: string,
   hobby: string,
+  taskAmount: number,
 }
 
 const MultiStepForm: React.FC = () => {
@@ -67,12 +80,12 @@ const MultiStepForm: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [topic, setTopic] = useState('');
   const [grade, setGrade] = useState('');
-  const [hobby, setHobby] = useState('Brak'); // Default value set to "Brak"
+  const [hobby, setHobby] = useState('Brak');
+  const [taskAmount, setTaskAmount] = useState('3');
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Reset topic if subject or grade changes
     if (activeStep === 2) {
       setTopic('');
     }
@@ -95,6 +108,8 @@ const MultiStepForm: React.FC = () => {
         return grade;
       case "Hobby":
         return hobby;
+      case "Ilość Zadań":
+        return taskAmount;
       default:
         return '';
     }
@@ -110,6 +125,8 @@ const MultiStepForm: React.FC = () => {
         return setGrade;
       case "Hobby":
         return setHobby;
+      case "Ilość Zadań":
+        return setTaskAmount;
       default:
         return () => { };
     }
@@ -131,58 +148,72 @@ const MultiStepForm: React.FC = () => {
       topic: topic,
       grade: grade,
       hobby: hobby,
+      taskAmount: Number.parseInt(taskAmount),
     }
-    navigate('/review', { state: params });
+    navigate('/review_prompt', { state: params });
   };
 
   return (
-    <div className="w-full px-24 py-4">
+    <div className="w-full">
 
-      <Header />
+      <div className="w-full flex justify-center items-center py-8">
+        <Link to="/">
+          <div className="text-3xl text-cyan-600 font-medium leading-6 text-center">
+            simple
+            <br />
+            <span className="text-indigo-600">test</span>
+          </div>
+        </Link>
+      </div>
 
-      <Stepper activeStep={activeStep} {...MUI_ERROR}>
-        {steps.map((step, index) => (
-          <Step key={index} onClick={() => { }} {...MUI_ERROR}>
-            <step.icon className="h-5 w-5" />
-            <div className="absolute -bottom-[4.5rem] w-max text-center">
-              <Typography variant="h6" color={activeStep === index ? "blue-gray" : "gray"} {...MUI_ERROR}>
-                {step.label}
-              </Typography>
-              <Typography color={activeStep === index ? "blue-gray" : "gray"} className="font-normal" {...MUI_ERROR}>
-                {step.description}
-              </Typography>
-            </div>
-          </Step>
-        ))}
-      </Stepper>
+      <div className='mt-10'>
 
-      <div className="mt-28">
-        <select
-          className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          value={steps[activeStep].value}
-          onChange={(e) => steps[activeStep].setValue(e.target.value)}
-        >
-          <option value="">Wybierz {steps[activeStep].label.toLowerCase()}</option>
-          {steps[activeStep].options.map((option, index) => (
-            <option key={index} value={option}>{option}</option>
+        <Stepper activeStep={activeStep} {...MUI_ERROR}>
+          {steps.map((step, index) => (
+            <Step key={index} onClick={() => { }} {...MUI_ERROR}>
+              <step.icon className="h-5 w-5" />
+              <div className="absolute -bottom-[4.5rem] w-max text-center">
+                <Typography variant="h6" color={activeStep === index ? "blue-gray" : "gray"} {...MUI_ERROR}>
+                  {step.label}
+                </Typography>
+                <Typography color={activeStep === index ? "blue-gray" : "gray"} className="font-normal" {...MUI_ERROR}>
+                  {step.description}
+                </Typography>
+              </div>
+            </Step>
           ))}
-        </select>
+        </Stepper>
+
+        <div className="mt-32 px-24 py-4">
+          <select
+            className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            value={steps[activeStep].value}
+            onChange={(e) => steps[activeStep].setValue(e.target.value)}
+          >
+            <option value="">Wybierz {steps[activeStep].label.toLowerCase()}</option>
+            {steps[activeStep].options.map((option, index) => (
+              <option key={index} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-16 flex justify-between">
+          <Button onClick={handlePrev} disabled={activeStep === 0} {...MUI_ERROR}>
+            Poprzedni
+          </Button>
+          {activeStep === steps.length - 1 ? (
+            <Button onClick={handleGenerate} disabled={!steps[activeStep].value} {...MUI_ERROR}>
+              Generuj
+            </Button>
+          ) : (
+            <Button onClick={handleNext} disabled={!steps[activeStep].value} {...MUI_ERROR}>
+              Następny
+            </Button>
+          )}
+        </div>
+
       </div>
 
-      <div className="mt-32 flex justify-between">
-        <Button onClick={handlePrev} disabled={activeStep === 0} {...MUI_ERROR}>
-          Poprzedni
-        </Button>
-        {activeStep === steps.length - 1 ? (
-          <Button onClick={handleGenerate} disabled={!steps[activeStep].value} {...MUI_ERROR}>
-            Generuj
-          </Button>
-        ) : (
-          <Button onClick={handleNext} disabled={!steps[activeStep].value} {...MUI_ERROR}>
-            Następny
-          </Button>
-        )}
-      </div>
     </div>
   );
 };

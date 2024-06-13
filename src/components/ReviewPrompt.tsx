@@ -13,7 +13,7 @@ const ReviewPrompt: React.FC<{}> = () => {
     const params: FINAL_PARAM = location.state;
     const [values, setValues] = useState<FINAL_PARAM>(params);
     console.log(values);
-    const [text, setText] = useState(`Wygeneruj mi treść zadania z przedmiotu ${values.subject} z działu "${values.topic}". Nawiąż treścią zadania do hobby o tematyce ${values.hobby}. Weź pod uwagę że uczeń jest w ${values.grade} klasie podstawowej.`);
+    const [text, setText] = useState(`Wygeneruj mi treść ${values.taskAmount} ${values.taskAmount === 1 ? "zadania otwartego" : "zadań otwartych"} z przedmiotu ${values.subject} z działu "${values.topic}". ${values.hobby === "Brak" ? "" : `Nawiąż treścią zadania do hobby o tematyce ${values.hobby}.`} Weź pod uwagę że uczeń jest w ${values.grade} klasie podstawowej.`);
     const [isEditing, setIsEditing] = useState(false);
 
     const handleEditClick = () => {
@@ -25,7 +25,7 @@ const ReviewPrompt: React.FC<{}> = () => {
     };
 
     return (
-        <div className="bg-[#EDDCD2] overflow-hidden p-0 min-h-dvh">
+        <div className="overflow-hidden p-0 min-h-dvh">
             <div className="max-w-4xl mx-auto my-10">
 
                 <Header />
@@ -55,7 +55,7 @@ const ReviewPrompt: React.FC<{}> = () => {
                                 taskParams: values,
                                 redefinedPrompt: text
                             }
-                              navigate('/final', { state: params });
+                              navigate('/generated_tasks', { state: params });
                         }}>
                             Generuj
                         </Button>

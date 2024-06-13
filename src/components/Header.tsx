@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ generate = false }) => {
       </Link>
 
       {generate && (
-        <Link to="/generate">
+        <Link to="/prepare_prompt">
           <Button variant="outlined" {...MUI_ERROR}>
             Generuj
           </Button>

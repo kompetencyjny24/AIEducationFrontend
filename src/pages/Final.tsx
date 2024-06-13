@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { Accordion, AccordionHeader, AccordionBody, Button, Spinner, Typography } from "@material-tailwind/react";
+import React, { useEffect, useState, useRef } from "react";
+import { Accordion, AccordionHeader, AccordionBody, Button, Spinner, Typography, Popover, PopoverContent, PopoverHandler } from "@material-tailwind/react";
+import { TextField } from "@mui/material";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import MultiStepForm, { FINAL_PARAM, MUI_ERROR } from "../components/MultiStepForm";
+import { MUI_ERROR } from "../components/MultiStepForm";
 import publiAxios from "../hooks/publiAxios";
-import { generateKey } from "crypto";
+import axios from 'axios';
+import clsx from 'clsx';
 
 export interface TaskProps {
     subject: string;
     topic: string;
     grade: string;
     hobby: string;
+    taskAmount: number;
 }
 
 export interface TaskWithRedefinedPrompt {
@@ -48,14 +51,17 @@ const Icon: React.FC<IconProps> = ({ id, open }) => {
 
 const Final: React.FC<{}> = () => {
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [taskSetId, setTaskSetId] = useState(-1);
     const [data, setData] = useState<Task[]>([]);
     const [open, setOpen] = useState<number | null>(null);
+    const [isEditing, setIsEditing] = useState<{ [key: number]: boolean }>({});
+    const [editedTask, setEditedTask] = useState<{ [key: number]: Task }>({});
+    const [textFieldRows, setTextFieldRows] = useState<{ [key: number]: number }>({});
+    const textAreaRefs = useRef<{ [key: number]: HTMLTextAreaElement | null }>({});
 
     const navigate = useNavigate();
     const location = useLocation();
     const params: TaskWithRedefinedPrompt = location.state;
-    // console.log(params);
 
     useEffect(() => {
         setLoading(true);
@@ -65,12 +71,12 @@ const Final: React.FC<{}> = () => {
         }
         const fetchData = async () => {
             publiAxios.post('/task', {
-                "subject": "",
-                "predefinedPrompt": params.redefinedPrompt,
-                "subjectSection": "",
-                "hobby": "",
-                "grade": "",
-                "taskAmount": "5"
+                "subject": params.taskParams.subject,
+                "predefinedPrompt": "",
+                "subjectSection": params.taskParams.topic,
+                "hobby": params.taskParams.hobby === "Brak" ? "" : params.taskParams.hobby,
+                "taskAmount": params.taskParams.taskAmount,
+                "grade": params.taskParams.grade,
             }).then(response => {
                 console.log(response);
                 const generatedTasks = response.data.generatedTasks.map((task: any) => ({
@@ -82,8 +88,10 @@ const Final: React.FC<{}> = () => {
                     answer: task.answer
                 }));
                 setData(generatedTasks);
+                setTaskSetId(response.data.id);
             }).catch(error => {
-                setError('Failed to fetch tasks' + error);
+                console.log(error.message);
+                fetchData();
             }).finally(() => {
                 setLoading(false);
             });
@@ -95,64 +103,231 @@ const Final: React.FC<{}> = () => {
         setOpen(open === index ? null : index);
     };
 
-    return (
-        <div className="bg-[#EDDCD2] overflow-hidden p-0 min-h-dvh">
-            <div className="max-w-4xl mx-auto my-10">
-                <div className="text-center w-full max-w-xlg p-4 justify-center">
-                    <Typography variant="h3" {...MUI_ERROR}>
-                        Wygenerowane zadania wraz z podpowiedziami
-                    </Typography>
-                    <Button className="mb-2" onClick={() => { console.log('download') }} {...MUI_ERROR}>
-                        Export to PDF
-                    </Button>
+    const handleEditClick = (index: number) => {
+        setIsEditing({ ...isEditing, [index]: !isEditing[index] });
+        if (!isEditing[index]) {
+            setEditedTask({ ...editedTask, [index]: data[index] });
+        } else {
+            const newData = [...data];
+            newData[index] = editedTask[index];
+            setData(newData);
+        }
+    };
 
-                    {
-                        loading && <div className="bg-[#EDDCD2] overflow-hidden p-0 min-h-dvh flex items-center justify-center">
-                            <div className="text-center">
-                                <Spinner className="h-12 w-12"  {...MUI_ERROR}/>
-                                <Typography variant="h6" {...MUI_ERROR}>
-                                    Generating
-                                </Typography>
-                            </div>
+    const handleTaskChange = (index: number, field: string, value: string) => {
+        setEditedTask({
+            ...editedTask,
+            [index]: {
+                ...editedTask[index],
+                [field]: value
+            }
+        });
+        updateTextFieldRows(index);
+    };
+
+    const updateTextFieldRows = (index: number) => {
+        const textarea = textAreaRefs.current[index];
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+    };
+
+    const exportPDF = (onlyContent: boolean) => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/v1/task/${taskSetId}/pdf`, {
+                    responseType: 'blob', // Important to set the response type to blob
+                    params: {
+                        onlyContent: onlyContent
+                    }
+                });
+
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'Generated_Task.pdf';
+                link.click();
+
+                window.URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error('Error downloading the PDF', error);
+            }
+        };
+
+        fetchData();
+    };
+
+    return (
+        <div className="overflow-hidden p-0 min-h-dvh">
+
+            <div className="w-full flex justify-center items-center py-8">
+
+                <Link to="/">
+                    <div className="text-3xl text-cyan-600 font-medium leading-6 text-center">
+                        simple
+                        <br />
+                        <span className="text-indigo-600">test</span>
+                    </div>
+                </Link>
+
+            </div>
+
+            <div className="max-w-4xl mx-auto">
+
+                <div className="text-center w-full max-w-xlg p-4 justify-center">
+
+                    {loading ? 
+                    <div>
+
+                        <Typography variant="h3" {...MUI_ERROR}>
+
+                            Generujemy zadania dla Ciebie!
+
+                        </Typography>
+
+                    </div>
+                    : 
+                    <div>
+                        <Typography variant="h3" {...MUI_ERROR}>
+
+                            Wygenerowane zadania wraz z podpowiedziami
+
+                        </Typography>
+                    </div>
+                    }
+
+                    {loading && 
+                        <div className="overflow-hidden p-0 flex items-center justify-center">
+                            <Spinner className="h-12 w-12"  {...MUI_ERROR}/>
                         </div>
                     }
-                    {
-                        error !== '' &&
-                        <Typography variant="h6" color="red" {...MUI_ERROR}>
-                            {error}
-                        </Typography>
-                    }
-                    {
-                        (!loading) && (error === '') &&
+
+                    {(!loading) &&
                         data.map((task, index) => (
                             <div key={index} className="mb-4 p-4 border rounded-lg bg-white shadow-md">
-                                <Typography variant="h6" {...MUI_ERROR}>{task.content}</Typography>
+
+                                <div className="p-4 flex flex-col items-end">
+
+                                    <textarea
+                                        ref={(el) => (textAreaRefs.current[index] = el)}
+                                        className={clsx(
+                                            "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
+                                            {
+                                                "border-gray-400": !isEditing[index],
+                                                "border-blue-500": isEditing[index]
+                                            }
+                                        )}
+                                        rows={textFieldRows[index] || 3}
+                                        value={isEditing[index] ? editedTask[index]?.content : task.content}
+                                        onChange={(e) => handleTaskChange(index, 'content', e.target.value)}
+                                        disabled={!isEditing[index]}
+                                        style={{ color: 'black', height: 'auto' }}
+                                    />
+
+                                    <div className="flex space-x-4 mt-2">
+
+                                        <Button size="sm" onClick={() => handleEditClick(index)} {...MUI_ERROR}>
+                                            {isEditing[index] ? 'Zapisz' : 'Edytuj treść zadania'}
+                                        </Button>
+
+                                    </div>
+
+                                </div>
+
                                 <Accordion open={open === index} icon={<Icon id={index} open={open} />} {...MUI_ERROR}>
-                                    <AccordionHeader onClick={() => handleOpen(index)} {...MUI_ERROR}>Show Hint 1</AccordionHeader>
+
+                                    <AccordionHeader onClick={() => handleOpen(index)} {...MUI_ERROR}>
+                                        Pierwsza podpowiedź
+                                    </AccordionHeader>
+
                                     <AccordionBody>
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>{task.hint_1}</Typography>
+                                        <Typography className="text-gray-700" {...MUI_ERROR}>
+                                            {task.hint_1}
+                                        </Typography>
                                     </AccordionBody>
+
                                 </Accordion>
+
                                 <Accordion open={open === index + 100} icon={<Icon id={index + 100} open={open} />} {...MUI_ERROR}>
-                                    <AccordionHeader onClick={() => handleOpen(index + 100)} {...MUI_ERROR}>Show Hint 2</AccordionHeader>
+
+                                    <AccordionHeader onClick={() => handleOpen(index + 100)} {...MUI_ERROR}>
+                                        Druga podpowiedź
+                                    </AccordionHeader>
+
                                     <AccordionBody>
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>{task.hint_2}</Typography>
+
+                                        <Typography className="text-gray-700" {...MUI_ERROR}>
+                                            {task.hint_2}
+                                        </Typography>
+
                                     </AccordionBody>
+
                                 </Accordion>
+
                                 <Accordion open={open === index + 200} icon={<Icon id={index + 200} open={open} />} {...MUI_ERROR}>
-                                    <AccordionHeader onClick={() => handleOpen(index + 200)} {...MUI_ERROR}>Show Result</AccordionHeader>
+
+                                    <AccordionHeader onClick={() => handleOpen(index + 200)} {...MUI_ERROR}>
+                                        Odpowiedź
+                                    </AccordionHeader>
+
                                     <AccordionBody>
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>{task.answer}</Typography>
+
+                                        <Typography className="text-gray-700" {...MUI_ERROR}>
+                                            {task.answer}
+                                        </Typography>
+
                                     </AccordionBody>
+
                                 </Accordion>
+
                             </div>
                         ))
                     }
-                    <Button className="mb-2" onClick={() => navigate('/generate')} {...MUI_ERROR}>
-                        Generate another Tasks
-                    </Button>
+
+                    <div className="flex justify-between mb-24">
+
+                        {!loading && 
+                            <Button onClick={() => navigate('/prepare_prompt')} {...MUI_ERROR}>
+
+                                Zacznij od nowa!
+
+                            </Button>
+                        }
+
+                        {taskSetId !== -1 && !loading && 
+                            <Popover placement="bottom" {...MUI_ERROR}>
+
+                                <PopoverHandler {...MUI_ERROR}>
+
+                                    <Button {...MUI_ERROR}>
+                                        Eksportuj do PDF
+                                    </Button>
+
+                                </PopoverHandler>
+
+                                <PopoverContent className="flex justify-center items-center p-4 gap-4" {...MUI_ERROR}>
+
+                                    <Button variant="gradient" className="flex-shrink-0" onClick={() => exportPDF(true)} {...MUI_ERROR}>
+                                        Bez podpowiedzi
+                                    </Button>
+
+                                    <Button variant="gradient" className="flex-shrink-0" onClick={() => exportPDF(false)} {...MUI_ERROR}>
+                                        Z podpowiedziami
+                                    </Button>
+
+                                </PopoverContent>
+
+                            </Popover>
+                        }
+
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
     );
 };

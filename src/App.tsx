@@ -10,23 +10,27 @@ function App() {
     <div>
 
       <Router>
+
         <Routes>
+
           <Route
             path="/"
             element={<Home />} />
 
           <Route
-            path="/generate"
+            path="/prepare_prompt"
             element={<Generate />} />
 
           <Route
-            path="/final"
+            path="/review_prompt"
+            element={<ReviewPrompt/>} />
+
+          <Route
+            path="/generated_tasks"
             element={<Final />} />
 
-<Route
-            path="/review"
-            element={<ReviewPrompt/>} />
         </Routes>
+
       </Router>
 
     </div>
