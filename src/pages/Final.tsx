@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MUI_ERROR } from "../components/MultiStepForm";
 import publiAxios from "../hooks/publiAxios";
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import clsx from 'clsx';
 
 export interface TaskProps {
@@ -48,6 +49,11 @@ const Icon: React.FC<IconProps> = ({ id, open }) => {
 };
 
 const Final: React.FC<{}> = () => {
+    axiosRetry(axios, { 
+        retries: 3,
+        retryDelay: axiosRetry.exponentialDelay,
+    });
+
     const [loading, setLoading] = useState(true);
     const [taskSetId, setTaskSetId] = useState(-1);
     const [data, setData] = useState<Task[]>([]);
@@ -69,7 +75,7 @@ const Final: React.FC<{}> = () => {
         }
 
         const fetchData = async () => {
-            publiAxios.post('/task', {
+            axios.post('http://localhost:8080/api/v1/task', {
                 "subject": !params.wasPromptEdited ? params.taskParams.subject : "",
                 "predefinedPrompt": params.wasPromptEdited ? params.redefinedPrompt : "",
                 "subjectSection": !params.wasPromptEdited ? params.taskParams.topic : "",
@@ -89,8 +95,8 @@ const Final: React.FC<{}> = () => {
                 setData(generatedTasks);
                 setTaskSetId(response.data.id);
             }).catch(error => {
-                fetchData();
                 console.log(error.message);
+                navigate('/review_prompt', { state: params })
             }).finally(() => {
                 setLoading(false);
             });
@@ -205,6 +211,7 @@ const Final: React.FC<{}> = () => {
     };
 
     console.log(taskSetId);
+    console.log(data);
 
     return (
         <div className="overflow-hidden p-0 min-h-dvh">

@@ -23,22 +23,90 @@ const subjects: string[] = [
 
 const topics: { [key: string]: { [key: string]: string[] } } = {
   "Matematyka": {
-    "6": ["Algebra 6", "Geometria 6"],
-    "7": ["Algebra 7", "Geometria 7"],
-    "8": ["Algebra 8", "Geometria 8"]
+    "4": [
+      "Arytmetyka: Liczby naturalne, całkowite, ułamki",
+      "Arytmetyka: Działania arytmetyczne: dodawanie, odejmowanie, mnożenie, dzielenie",
+      "Arytmetyka: Procenty, proporcje",
+      "Geometria: Figury płaskie: kwadraty, prostokąty, trójkąty, koła",
+      "Geometria: Obwody i pola figur",
+      "Geometria: Podstawy brył: sześciany, prostopadłościany",
+      "Podstawy algebry: Wyrażenia algebraiczne",
+      "Podstawy algebry: Proste równania i nierówności"
+    ],
+    "5": [
+      "Arytmetyka: Liczby naturalne, całkowite, ułamki",
+      "Arytmetyka: Działania arytmetyczne: dodawanie, odejmowanie, mnożenie, dzielenie",
+      "Arytmetyka: Procenty, proporcje",
+      "Geometria: Figury płaskie: kwadraty, prostokąty, trójkąty, koła",
+      "Geometria: Obwody i pola figur",
+      "Geometria: Podstawy brył: sześciany, prostopadłościany",
+      "Podstawy algebry: Wyrażenia algebraiczne",
+      "Podstawy algebry: Proste równania i nierówności"
+    ],
+    "6": [
+      "Arytmetyka: Liczby naturalne, całkowite, ułamki",
+      "Arytmetyka: Działania arytmetyczne: dodawanie, odejmowanie, mnożenie, dzielenie",
+      "Arytmetyka: Procenty, proporcje",
+      "Geometria: Figury płaskie: kwadraty, prostokąty, trójkąty, koła",
+      "Geometria: Obwody i pola figur",
+      "Geometria: Podstawy brył: sześciany, prostopadłościany",
+      "Podstawy algebry: Wyrażenia algebraiczne",
+      "Podstawy algebry: Proste równania i nierówności"
+    ],
+    "7": [
+      "Algebra: Równania i nierówności liniowe",
+      "Algebra: Układy równań",
+      "Algebra: Funkcje: definicje, wykresy, własności funkcji liniowych i kwadratowych",
+      "Geometria: Twierdzenie Pitagorasa",
+      "Geometria: Kąty i ich miary",
+      "Geometria: Konstrukcje geometryczne",
+      "Geometria: Figury przestrzenne: objętości i pola powierzchni brył",
+      "Statystyka i prawdopodobieństwo: Podstawowe pojęcia statystyczne",
+      "Statystyka i prawdopodobieństwo: Prawdopodobieństwo zdarzeń",
+      "Trygonometria: Podstawy trygonometrii: kąty, sinus, cosinus, tangens"
+    ],
+    "8": [
+      "Algebra: Równania i nierówności liniowe",
+      "Algebra: Układy równań",
+      "Algebra: Funkcje: definicje, wykresy, własności funkcji liniowych i kwadratowych",
+      "Geometria: Twierdzenie Pitagorasa",
+      "Geometria: Kąty i ich miary",
+      "Geometria: Konstrukcje geometryczne",
+      "Geometria: Figury przestrzenne: objętości i pola powierzchni brył",
+      "Statystyka i prawdopodobieństwo: Podstawowe pojęcia statystyczne",
+      "Statystyka i prawdopodobieństwo: Prawdopodobieństwo zdarzeń",
+      "Trygonometria: Podstawy trygonometrii: kąty, sinus, cosinus, tangens"
+    ]
   },
   "Fizyka": {
-    "6": ["Termodynamika 6", "Optyka 6"],
-    "7": ["Termodynamika 7", "Optyka 7"],
-    "8": ["Termodynamika 8", "Optyka 8"]
+    "7": [
+      "Kinematyka: Ruch prostoliniowy",
+      "Kinematyka: Prędkość, przyspieszenie",
+      "Dynamika: Siły i ich oddziaływania",
+      "Dynamika: Zasady dynamiki Newtona",
+      "Energia mechaniczna: Praca, moc, energia kinetyczna i potencjalna",
+      "Grawitacja: Prawa Keplera",
+      "Grawitacja: Prawo powszechnego ciążenia"
+    ],
+    "8": [
+      "Termodynamika: Ciepło i temperatura",
+      "Termodynamika: Przemiany stanów skupienia",
+      "Termodynamika: Pierwsza zasada termodynamiki",
+      "Elektryczność i magnetyzm: Prąd elektryczny, napięcie, opór",
+      "Elektryczność i magnetyzm: Obwody elektryczne",
+      "Elektryczność i magnetyzm: Pole magnetyczne",
+      "Fale i optyka: Fale mechaniczne i elektromagnetyczne",
+      "Fale i optyka: Odbicie, załamanie, soczewki",
+      "Atom i jądro atomowe: Budowa atomu",
+      "Atom i jądro atomowe: Reakcje jądrowe, promieniotwórczość"
+    ]
   },
 };
 
-const grades: string[] = [
-  "6",
-  "7",
-  "8"
-];
+const gradesOptions: { [key: string]: string[] } = {
+  "Matematyka": ["4", "5", "6", "7", "8"],
+  "Fizyka": ["7", "8"]
+};
 
 const hobbies: string[] = [
   "Brak",
@@ -59,7 +127,7 @@ const amounts: number[] = [
 
 const stepsData = [
   { label: "Przedmiot", icon: PencilIcon, description: "Wybierz Przedmiot", options: subjects },
-  { label: "Klasa", icon: AcademicCapIcon, description: "Wybierz Klasę", options: grades },
+  { label: "Klasa", icon: AcademicCapIcon, description: "Wybierz Klasę", options: [] }, // Options to be updated dynamically
   { label: "Temat", icon: BookOpenIcon, description: "Wybierz Temat", options: [] }, // Options to be updated dynamically
   { label: "Hobby", icon: PuzzlePieceIcon, description: "Wybierz Hobby", options: hobbies },
   { label: "Liczba Zadań", icon: CalculatorIcon, description: "Wybierz liczbę zadań", options: amounts }
@@ -91,7 +159,7 @@ const MultiStepForm: React.FC = () => {
 
   const steps = stepsData.map(step => ({
     ...step,
-    options: step.label === "Temat" ? (subject && grade ? topics[subject][grade] : []) : step.options,
+    options: step.label === "Klasa" ? (subject ? gradesOptions[subject] : []) : step.label === "Temat" ? (subject && grade ? topics[subject][grade] : []) : step.options,
     value: getValue(step.label),
     setValue: getSetValueFunction(step.label)
   }));
