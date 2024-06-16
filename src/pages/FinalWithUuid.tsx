@@ -379,7 +379,7 @@ const FinalWithUuid: React.FC<{}> = () => {
                         {!loading && (
                             <div className="text-center">
                                 <Button variant="gradient" onClick={copyTaskSetId} {...MUI_ERROR}>
-                                    Kopiuj taskSetId
+                                    Udostępnij zadania
                                 </Button>
                             </div>
                         )}

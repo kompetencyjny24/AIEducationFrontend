@@ -74,9 +74,10 @@ const Final: React.FC<{}> = () => {
                 "predefinedPrompt": params.wasPromptEdited ? params.redefinedPrompt : "",
                 "subjectSection": !params.wasPromptEdited ? params.taskParams.topic : "",
                 "hobby": !params.wasPromptEdited ? params.taskParams.hobby === "Brak" ? "" : params.taskParams.hobby : "",
-                "taskAmount": !params.wasPromptEdited ? params.taskParams.taskAmount : "",
+                "taskAmount": params.taskParams.taskAmount,
                 "grade": !params.wasPromptEdited ? params.taskParams.grade : "",
-            }).then(response => {
+            })
+            .then(response => {
 
                 const generatedTasks = response.data.generatedTasks.map((task: any) => ({
                     id: task.id,
@@ -88,6 +89,7 @@ const Final: React.FC<{}> = () => {
                 setData(generatedTasks);
                 setTaskSetId(response.data.id);
             }).catch(error => {
+                fetchData();
                 console.log(error.message);
             }).finally(() => {
                 setLoading(false);
@@ -396,7 +398,7 @@ const Final: React.FC<{}> = () => {
                         {!loading && (
                             <div className="text-center">
                                 <Button variant="gradient" onClick={copyTaskSetId} {...MUI_ERROR}>
-                                    Kopiuj taskSetId
+                                    Udostępnij zadania
                                 </Button>
                             </div>
                         )}
