@@ -60,7 +60,7 @@ const FinalWithUuid: React.FC<{}> = () => {
 
     useEffect(() => {
       const fetchData = async () => {
-        const response = await axios.get(`http://localhost:8080/api/v1/task/${uuid}`)
+        await axios.get(`http://localhost:8080/api/v1/task/${uuid}`)
         .then( response => {
           const fetchedTasks = response.data.generatedTasks.map((task: any) => ({
             id: task.id,
