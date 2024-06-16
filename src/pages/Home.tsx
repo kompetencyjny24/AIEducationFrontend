@@ -59,7 +59,7 @@ const Home = () => {
                 </div>
 
                 <div className="text-lg">
-                  Wygenerujemy je za Ciebie, dla Ciebie!
+                  Wygenerujemy je dla Ciebie!
                 </div>
 
                 <Link

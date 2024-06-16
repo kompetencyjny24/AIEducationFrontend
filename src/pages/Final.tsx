@@ -17,6 +17,7 @@ export interface TaskProps {
 
 export interface TaskWithRedefinedPrompt {
     taskParams: TaskProps;
+    wasPromptEdited: boolean;
     redefinedPrompt: string;
 }
 
@@ -63,6 +64,8 @@ const Final: React.FC<{}> = () => {
     const location = useLocation();
     const params: TaskWithRedefinedPrompt = location.state;
 
+    console.log(params);
+
     useEffect(() => {
         setLoading(true);
         if (params.taskParams.subject === '' || params.taskParams.topic === '' || params.taskParams.grade === '' || params.taskParams.hobby === '' || params.redefinedPrompt === '') {
@@ -71,12 +74,12 @@ const Final: React.FC<{}> = () => {
         }
         const fetchData = async () => {
             publiAxios.post('/task', {
-                "subject": params.taskParams.subject,
-                "predefinedPrompt": "",
-                "subjectSection": params.taskParams.topic,
-                "hobby": params.taskParams.hobby === "Brak" ? "" : params.taskParams.hobby,
-                "taskAmount": params.taskParams.taskAmount,
-                "grade": params.taskParams.grade,
+                "subject": !params.wasPromptEdited ? params.taskParams.subject : "",
+                "predefinedPrompt": params.wasPromptEdited ? params.redefinedPrompt : "",
+                "subjectSection": !params.wasPromptEdited ? params.taskParams.topic : "",
+                "hobby": !params.wasPromptEdited ? params.taskParams.hobby === "Brak" ? "" : params.taskParams.hobby : "",
+                "taskAmount": !params.wasPromptEdited ? params.taskParams.taskAmount : "",
+                "grade": !params.wasPromptEdited ? params.taskParams.grade : "",
             }).then(response => {
                 console.log(response);
                 const generatedTasks = response.data.generatedTasks.map((task: any) => ({
@@ -163,15 +166,17 @@ const Final: React.FC<{}> = () => {
         <div className="overflow-hidden p-0 min-h-dvh">
 
             <div className="w-full flex justify-center items-center py-8">
-
                 <Link to="/">
-                    <div className="text-3xl text-cyan-600 font-medium leading-6 text-center">
-                        simple
-                        <br />
-                        <span className="text-indigo-600">test</span>
+                    <div className="text-4xl text-cyan-600 font-medium leading-6">
+
+                        <span className="text-indigo-600 font-bold text-5xl">
+                        AI
+                        </span>
+
+                        task
+
                     </div>
                 </Link>
-
             </div>
 
             <div className="max-w-4xl mx-auto">

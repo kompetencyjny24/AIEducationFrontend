@@ -55,8 +55,6 @@ const amounts: number[] = [
   3,
   4,
   5,
-  6,
-  7,
 ]
 
 const stepsData = [
@@ -64,7 +62,7 @@ const stepsData = [
   { label: "Klasa", icon: AcademicCapIcon, description: "Wybierz Klasę", options: grades },
   { label: "Temat", icon: BookOpenIcon, description: "Wybierz Temat", options: [] }, // Options to be updated dynamically
   { label: "Hobby", icon: PuzzlePieceIcon, description: "Wybierz Hobby", options: hobbies },
-  { label: "Ilość Zadań", icon: CalculatorIcon, description: "Wybierz ilość zadań", options: amounts }
+  { label: "Liczba Zadań", icon: CalculatorIcon, description: "Wybierz liczbę zadań", options: amounts }
 ];
 
 export type FINAL_PARAM = {
@@ -108,7 +106,7 @@ const MultiStepForm: React.FC = () => {
         return grade;
       case "Hobby":
         return hobby;
-      case "Ilość Zadań":
+      case "Liczba Zadań":
         return taskAmount;
       default:
         return '';
@@ -125,7 +123,7 @@ const MultiStepForm: React.FC = () => {
         return setGrade;
       case "Hobby":
         return setHobby;
-      case "Ilość Zadań":
+      case "Liczba Zadań":
         return setTaskAmount;
       default:
         return () => { };
@@ -158,10 +156,14 @@ const MultiStepForm: React.FC = () => {
 
       <div className="w-full flex justify-center items-center py-8">
         <Link to="/">
-          <div className="text-3xl text-cyan-600 font-medium leading-6 text-center">
-            simple
-            <br />
-            <span className="text-indigo-600">test</span>
+          <div className="text-4xl text-cyan-600 font-medium leading-6">
+
+            <span className="text-indigo-600 font-bold text-5xl">
+              AI
+            </span>
+
+            task
+
           </div>
         </Link>
       </div>

@@ -2,9 +2,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FINAL_PARAM } from "./MultiStepForm";
 import { useState } from "react";
 import { Button, Typography } from "@material-tailwind/react";
-import Header, { MUI_ERROR } from "./Header";
+import { MUI_ERROR } from "./Header";
 import { TextField } from "@mui/material";
 import { TaskWithRedefinedPrompt } from "../pages/Final";
+import { Link } from "react-router-dom";
 
 const ReviewPrompt: React.FC<{}> = () => {
 
@@ -15,20 +16,39 @@ const ReviewPrompt: React.FC<{}> = () => {
     console.log(values);
     const [text, setText] = useState(`Wygeneruj mi treść ${values.taskAmount} ${values.taskAmount === 1 ? "zadania otwartego" : "zadań otwartych"} z przedmiotu ${values.subject} z działu "${values.topic}". ${values.hobby === "Brak" ? "" : `Nawiąż treścią zadania do hobby o tematyce ${values.hobby}.`} Weź pod uwagę że uczeń jest w ${values.grade} klasie podstawowej.`);
     const [isEditing, setIsEditing] = useState(false);
+    const [edited, setEdited] = useState(false);
 
     const handleEditClick = () => {
         setIsEditing(!isEditing);
     };
 
     const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setText(event.target.value);
+        const newText = event.target.value;
+
+        if (newText !== text) {
+            setText(newText);
+            if (edited !== true)
+                setEdited(true);
+        }
     };
 
     return (
         <div className="overflow-hidden p-0 min-h-dvh">
             <div className="max-w-4xl mx-auto my-10">
 
-                <Header />
+                <div className="w-full flex justify-center items-center py-8">
+                    <Link to="/">
+                        <div className="text-4xl text-cyan-600 font-medium leading-6">
+
+                            <span className="text-indigo-600 font-bold text-5xl">
+                            AI
+                            </span>
+
+                            task
+
+                        </div>
+                    </Link>
+                </div>
 
                 <Typography variant="h4" className="mb-4" {...MUI_ERROR}>
                     Wygenerowany Prompt ...
@@ -53,6 +73,7 @@ const ReviewPrompt: React.FC<{}> = () => {
                             //przekierowujemy z całym tekstem do generuj i wysyłamy zapytanie do api
                             const params: TaskWithRedefinedPrompt = {
                                 taskParams: values,
+                                wasPromptEdited: edited,
                                 redefinedPrompt: text
                             }
                               navigate('/generated_tasks', { state: params });
