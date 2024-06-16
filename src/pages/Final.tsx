@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Accordion, AccordionHeader, AccordionBody, Button, Spinner, Typography, Popover, PopoverContent, PopoverHandler } from "@material-tailwind/react";
-import { TextField } from "@mui/material";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MUI_ERROR } from "../components/MultiStepForm";
 import publiAxios from "../hooks/publiAxios";
@@ -55,10 +54,9 @@ const Final: React.FC<{}> = () => {
     const [taskSetId, setTaskSetId] = useState(-1);
     const [data, setData] = useState<Task[]>([]);
     const [open, setOpen] = useState<number | null>(null);
-    const [isEditing, setIsEditing] = useState<{ [key: number]: boolean }>({});
-    const [editedTask, setEditedTask] = useState<{ [key: number]: Task }>({});
-    const [textFieldRows, setTextFieldRows] = useState<{ [key: number]: number }>({});
-    const textAreaRefs = useRef<{ [key: number]: HTMLTextAreaElement | null }>({});
+    const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({});
+    const [editedTask, setEditedTask] = useState<{ [key: string]: string }>({});
+    const textAreaRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({});
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -106,30 +104,26 @@ const Final: React.FC<{}> = () => {
         setOpen(open === index ? null : index);
     };
 
-    const handleEditClick = (index: number) => {
-        setIsEditing({ ...isEditing, [index]: !isEditing[index] });
-        if (!isEditing[index]) {
-            setEditedTask({ ...editedTask, [index]: data[index] });
+    const handleEditClick = (key: string) => {
+        setIsEditing({ ...isEditing, [key]: !isEditing[key] });
+        if (!isEditing[key]) {
+            const [index, field] = key.split('-');
+            setEditedTask({ ...editedTask, [key]: data[parseInt(index)][field as keyof Task] });
         } else {
             const newData = [...data];
-            newData[index] = editedTask[index];
+            const [index, field] = key.split('-');
+            newData[parseInt(index)][field as keyof Task] = editedTask[key];
             setData(newData);
         }
     };
 
-    const handleTaskChange = (index: number, field: string, value: string) => {
-        setEditedTask({
-            ...editedTask,
-            [index]: {
-                ...editedTask[index],
-                [field]: value
-            }
-        });
-        updateTextFieldRows(index);
+    const handleTaskChange = (key: string, value: string) => {
+        setEditedTask({ ...editedTask, [key]: value });
+        updateTextFieldRows(key);
     };
 
-    const updateTextFieldRows = (index: number) => {
-        const textarea = textAreaRefs.current[index];
+    const updateTextFieldRows = (key: string) => {
+        const textarea = textAreaRefs.current[key];
         if (textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = `${textarea.scrollHeight}px`;
@@ -216,25 +210,25 @@ const Final: React.FC<{}> = () => {
                                 <div className="p-4 flex flex-col items-end">
 
                                     <textarea
-                                        ref={(el) => (textAreaRefs.current[index] = el)}
+                                        ref={(el) => (textAreaRefs.current[`${index}-content`] = el)}
                                         className={clsx(
                                             "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
                                             {
-                                                "border-gray-400": !isEditing[index],
-                                                "border-blue-500": isEditing[index]
+                                                "border-gray-400": !isEditing[`${index}-content`],
+                                                "border-blue-500": isEditing[`${index}-content`]
                                             }
                                         )}
-                                        rows={textFieldRows[index] || 3}
-                                        value={isEditing[index] ? editedTask[index]?.content : task.content}
-                                        onChange={(e) => handleTaskChange(index, 'content', e.target.value)}
-                                        disabled={!isEditing[index]}
+                                        rows={3}
+                                        value={isEditing[`${index}-content`] ? editedTask[`${index}-content`] : task.content}
+                                        onChange={(e) => handleTaskChange(`${index}-content`, e.target.value)}
+                                        disabled={!isEditing[`${index}-content`]}
                                         style={{ color: 'black', height: 'auto' }}
                                     />
 
                                     <div className="flex space-x-4 mt-2">
 
-                                        <Button size="sm" onClick={() => handleEditClick(index)} {...MUI_ERROR}>
-                                            {isEditing[index] ? 'Zapisz' : 'Edytuj treść zadania'}
+                                        <Button size="sm" onClick={() => handleEditClick(`${index}-content`)} {...MUI_ERROR}>
+                                            {isEditing[`${index}-content`] ? 'Zapisz' : 'Edytuj treść zadania'}
                                         </Button>
 
                                     </div>
@@ -248,9 +242,28 @@ const Final: React.FC<{}> = () => {
                                     </AccordionHeader>
 
                                     <AccordionBody>
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>
-                                            {task.hint_1}
-                                        </Typography>
+                                        <div className="p-4 flex flex-col items-end">
+                                            <textarea
+                                                ref={(el) => (textAreaRefs.current[`${index}-hint_1`] = el)}
+                                                className={clsx(
+                                                    "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
+                                                    {
+                                                        "border-gray-400": !isEditing[`${index}-hint_1`],
+                                                        "border-blue-500": isEditing[`${index}-hint_1`]
+                                                    }
+                                                )}
+                                                rows={3}
+                                                value={isEditing[`${index}-hint_1`] ? editedTask[`${index}-hint_1`] : task.hint_1}
+                                                onChange={(e) => handleTaskChange(`${index}-hint_1`, e.target.value)}
+                                                disabled={!isEditing[`${index}-hint_1`]}
+                                                style={{ color: 'black', height: 'auto' }}
+                                            />
+                                            <div className="flex space-x-4 mt-2">
+                                                <Button size="sm" onClick={() => handleEditClick(`${index}-hint_1`)} {...MUI_ERROR}>
+                                                    {isEditing[`${index}-hint_1`] ? 'Zapisz' : 'Edytuj pierwszą podpowiedź'}
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </AccordionBody>
 
                                 </Accordion>
@@ -262,11 +275,28 @@ const Final: React.FC<{}> = () => {
                                     </AccordionHeader>
 
                                     <AccordionBody>
-
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>
-                                            {task.hint_2}
-                                        </Typography>
-
+                                        <div className="p-4 flex flex-col items-end">
+                                            <textarea
+                                                ref={(el) => (textAreaRefs.current[`${index}-hint_2`] = el)}
+                                                className={clsx(
+                                                    "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
+                                                    {
+                                                        "border-gray-400": !isEditing[`${index}-hint_2`],
+                                                        "border-blue-500": isEditing[`${index}-hint_2`]
+                                                    }
+                                                )}
+                                                rows={3}
+                                                value={isEditing[`${index}-hint_2`] ? editedTask[`${index}-hint_2`] : task.hint_2}
+                                                onChange={(e) => handleTaskChange(`${index}-hint_2`, e.target.value)}
+                                                disabled={!isEditing[`${index}-hint_2`]}
+                                                style={{ color: 'black', height: 'auto' }}
+                                            />
+                                            <div className="flex space-x-4 mt-2">
+                                                <Button size="sm" onClick={() => handleEditClick(`${index}-hint_2`)} {...MUI_ERROR}>
+                                                    {isEditing[`${index}-hint_2`] ? 'Zapisz' : 'Edytuj drugą podpowiedź'}
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </AccordionBody>
 
                                 </Accordion>
@@ -278,11 +308,28 @@ const Final: React.FC<{}> = () => {
                                     </AccordionHeader>
 
                                     <AccordionBody>
-
-                                        <Typography className="text-gray-700" {...MUI_ERROR}>
-                                            {task.answer}
-                                        </Typography>
-
+                                        <div className="p-4 flex flex-col items-end">
+                                            <textarea
+                                                ref={(el) => (textAreaRefs.current[`${index}-answer`] = el)}
+                                                className={clsx(
+                                                    "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
+                                                    {
+                                                        "border-gray-400": !isEditing[`${index}-answer`],
+                                                        "border-blue-500": isEditing[`${index}-answer`]
+                                                    }
+                                                )}
+                                                rows={3}
+                                                value={isEditing[`${index}-answer`] ? editedTask[`${index}-answer`] : task.answer}
+                                                onChange={(e) => handleTaskChange(`${index}-answer`, e.target.value)}
+                                                disabled={!isEditing[`${index}-answer`]}
+                                                style={{ color: 'black', height: 'auto' }}
+                                            />
+                                            <div className="flex space-x-4 mt-2">
+                                                <Button size="sm" onClick={() => handleEditClick(`${index}-answer`)} {...MUI_ERROR}>
+                                                    {isEditing[`${index}-answer`] ? 'Zapisz' : 'Edytuj odpowiedź'}
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </AccordionBody>
 
                                 </Accordion>
