@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-import { Button, Chip } from "@material-tailwind/react";
+import { Input, Button, Chip } from "@material-tailwind/react";
 import publiAxios from "../hooks/publiAxios";
 
 import Header from "../components/Header";
@@ -15,7 +15,11 @@ export const MUI_ERROR = {
 };
 
 const Home = () => {
+  const navigate = useNavigate();
+
   const [taskCount, setTaskCount] = useState(0);
+
+  const [taskId, setTaskId] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,6 +106,27 @@ const Home = () => {
           <Chip size="lg" value={taskCount} color="amber" 
           className="w-fit py-4 px-8 rounded-full border-2 text-4xl mt-7" />
 
+        </div>
+
+        <div className="relative flex w-full max-w-[24rem]">
+          <Input
+            label="ID Zestawu Zadań"
+            value={taskId}
+            onChange={({ target }) => setTaskId(target.value)}
+            className="pr-20"
+            crossOrigin="anonymous"
+            {...MUI_ERROR}
+          />
+          <Button
+            size="sm"
+            color={taskId ? "gray" : "blue-gray"}
+            disabled={!taskId}
+            className="!absolute right-1 top-1 rounded"
+            {...MUI_ERROR}
+            onClick={() => navigate(`/${taskId}`)}
+          >
+            Przejdź
+          </Button>
         </div>
 
       </div>
