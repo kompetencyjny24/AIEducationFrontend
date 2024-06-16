@@ -177,6 +177,16 @@ const FinalWithUuid: React.FC<{}> = () => {
         fetchData();
     };
 
+    const copyTaskSetId = () => {
+      navigator.clipboard.writeText(taskSetId.toString())
+          .then(() => {
+              console.log('TaskSetId copied to clipboard');
+          })
+          .catch((error) => {
+              console.error('Error copying TaskSetId to clipboard', error);
+          });
+    };
+
     return (
         <div className="overflow-hidden p-0 min-h-dvh">
 
@@ -364,6 +374,14 @@ const FinalWithUuid: React.FC<{}> = () => {
                                     </Button>
                                 </PopoverContent>
                             </Popover>
+                        )}
+
+                        {!loading && (
+                            <div className="text-center">
+                                <Button variant="gradient" onClick={copyTaskSetId} {...MUI_ERROR}>
+                                    Kopiuj taskSetId
+                                </Button>
+                            </div>
                         )}
 
                     </div>
