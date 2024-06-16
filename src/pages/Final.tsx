@@ -22,10 +22,8 @@ export interface TaskWithRedefinedPrompt {
 
 interface Task {
     id: string;
-    prompt: string;
     content: string;
-    hint_1: string;
-    hint_2: string;
+    hints: [string, string];
     answer: string;
 }
 
@@ -62,14 +60,14 @@ const Final: React.FC<{}> = () => {
     const location = useLocation();
     const params: TaskWithRedefinedPrompt = location.state;
 
-    console.log(params);
-
     useEffect(() => {
         setLoading(true);
+
         if (params.taskParams.subject === '' || params.taskParams.topic === '' || params.taskParams.grade === '' || params.taskParams.hobby === '' || params.redefinedPrompt === '') {
             setLoading(false);
             return;
         }
+
         const fetchData = async () => {
             publiAxios.post('/task', {
                 "subject": !params.wasPromptEdited ? params.taskParams.subject : "",
@@ -79,24 +77,23 @@ const Final: React.FC<{}> = () => {
                 "taskAmount": !params.wasPromptEdited ? params.taskParams.taskAmount : "",
                 "grade": !params.wasPromptEdited ? params.taskParams.grade : "",
             }).then(response => {
-                console.log(response);
+
                 const generatedTasks = response.data.generatedTasks.map((task: any) => ({
                     id: task.id,
-                    prompt: response.data.prompt,
                     content: task.content,
-                    hint_1: task.hints[0],
-                    hint_2: task.hints[1],
+                    hints: task.hints,
                     answer: task.answer
                 }));
+
                 setData(generatedTasks);
                 setTaskSetId(response.data.id);
             }).catch(error => {
                 console.log(error.message);
-                fetchData();
             }).finally(() => {
                 setLoading(false);
             });
         };
+
         fetchData();
     }, []);
 
@@ -104,16 +101,55 @@ const Final: React.FC<{}> = () => {
         setOpen(open === index ? null : index);
     };
 
-    const handleEditClick = (key: string) => {
+    const handleEditClick = async (key: string) => {
+        const [index, field] = key.split('-');
+        const taskIndex = parseInt(index);
+        const fieldName = field as keyof Task;
+
         setIsEditing({ ...isEditing, [key]: !isEditing[key] });
-        if (!isEditing[key]) {
-            const [index, field] = key.split('-');
-            setEditedTask({ ...editedTask, [key]: data[parseInt(index)][field as keyof Task] });
-        } else {
+
+        if (isEditing[key]) {
             const newData = [...data];
-            const [index, field] = key.split('-');
-            newData[parseInt(index)][field as keyof Task] = editedTask[key];
+
+            if (fieldName.startsWith("hint_")) {
+                const hintIndex = parseInt(field.split('_')[1]);
+                newData[taskIndex].hints[hintIndex] = editedTask[key];
+            } else if (fieldName === "answer") {
+                newData[taskIndex].answer = editedTask[key];
+            }
+            else if (fieldName === "content") {
+                newData[taskIndex].content = editedTask[key];
+            }
+
             setData(newData);
+
+            await axios.put('http://localhost:8080/api/v1/task', newData, 
+                {
+                    params: { uuid: taskSetId }
+                }).then(response => {
+                    
+                    const updatedTasks = response.data.generatedTasks.map((task: any) => ({
+                        id: task.id,
+                        content: task.content,
+                        hints: task.hints,
+                        answer: task.answer
+                    }));
+
+                    setData(updatedTasks);
+                    setTaskSetId(response.data.id);
+                }).catch(error => {
+                    console.log(error);
+                });
+        } else {
+            if (field.startsWith("hint_")) {
+                const hintIndex = parseInt(field.split('_')[1]);
+                setEditedTask({ ...editedTask, [key]: data[taskIndex].hints[hintIndex] });
+            } else if (fieldName === "answer") {
+                setEditedTask({ ...editedTask, [key]: data[taskIndex].answer });
+            }
+            else if (fieldName === "content") {
+                setEditedTask({ ...editedTask, [key]: data[taskIndex].content });
+            }
         }
     };
 
@@ -134,7 +170,7 @@ const Final: React.FC<{}> = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/v1/task/${taskSetId}/pdf`, {
-                    responseType: 'blob', // Important to set the response type to blob
+                    responseType: 'blob',
                     params: {
                         onlyContent: onlyContent
                     }
@@ -156,63 +192,46 @@ const Final: React.FC<{}> = () => {
         fetchData();
     };
 
-    if (!loading && !data) {
-        navigate('/generate');
-    }
-
     return (
         <div className="overflow-hidden p-0 min-h-dvh">
 
             <div className="w-full flex justify-center items-center py-8">
                 <Link to="/">
                     <div className="text-4xl text-cyan-600 font-medium leading-6">
-
                         <span className="text-indigo-600 font-bold text-5xl">
-                        AI
+                            AI
                         </span>
-
                         task
-
                     </div>
                 </Link>
             </div>
 
             <div className="max-w-4xl mx-auto">
-
                 <div className="text-center w-full max-w-xlg p-4 justify-center">
-
-                    {loading ? 
-                    <div>
-
-                        <Typography variant="h3" {...MUI_ERROR}>
-
-                            Generujemy zadania dla Ciebie!
-
-                        </Typography>
-
-                    </div>
-                    : 
-                    <div>
-                        <Typography variant="h3" {...MUI_ERROR}>
-
-                            Wygenerowane zadania wraz z podpowiedziami
-
-                        </Typography>
-                    </div>
-                    }
-
-                    {loading && 
-                        <div className="overflow-hidden p-0 flex items-center justify-center">
-                            <Spinner className="h-12 w-12"  {...MUI_ERROR}/>
+                    {loading ? (
+                        <div>
+                            <Typography variant="h3" {...MUI_ERROR}>
+                                Generujemy zadania dla Ciebie!
+                            </Typography>
                         </div>
-                    }
+                    ) : (
+                        <div>
+                            <Typography variant="h3" {...MUI_ERROR}>
+                                Wygenerowane zadania wraz z podpowiedziami
+                            </Typography>
+                        </div>
+                    )}
 
-                    {(!loading) &&
+                    {loading && (
+                        <div className="overflow-hidden p-0 flex items-center justify-center">
+                            <Spinner className="h-12 w-12" {...MUI_ERROR} />
+                        </div>
+                    )}
+
+                    {!loading &&
                         data.map((task, index) => (
                             <div key={index} className="mb-4 p-4 border rounded-lg bg-white shadow-md">
-
                                 <div className="p-4 flex flex-col items-end">
-
                                     <textarea
                                         ref={(el) => (textAreaRefs.current[`${index}-content`] = el)}
                                         className={clsx(
@@ -228,21 +247,47 @@ const Final: React.FC<{}> = () => {
                                         disabled={!isEditing[`${index}-content`]}
                                         style={{ color: 'black', height: 'auto' }}
                                     />
-
                                     <div className="flex space-x-4 mt-2">
-
                                         <Button size="sm" onClick={() => handleEditClick(`${index}-content`)} {...MUI_ERROR}>
                                             {isEditing[`${index}-content`] ? 'Zapisz' : 'Edytuj treść zadania'}
                                         </Button>
-
                                     </div>
-
                                 </div>
 
                                 <Accordion open={open === index} icon={<Icon id={index} open={open} />} {...MUI_ERROR}>
-
                                     <AccordionHeader onClick={() => handleOpen(index)} {...MUI_ERROR}>
                                         Pierwsza podpowiedź
+                                    </AccordionHeader>
+
+                                    <AccordionBody>
+                                        <div className="p-4 flex flex-col items-end">
+                                            <textarea
+                                                ref={(el) => (textAreaRefs.current[`${index}-hint_0`] = el)}
+                                                className={clsx(
+                                                    "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
+                                                    {
+                                                        "border-gray-400": !isEditing[`${index}-hint_0`],
+                                                        "border-blue-500": isEditing[`${index}-hint_0`]
+                                                    }
+                                                )}
+                                                rows={3}
+                                                value={isEditing[`${index}-hint_0`] ? editedTask[`${index}-hint_0`] : task.hints[0]}
+                                                onChange={(e) => handleTaskChange(`${index}-hint_0`, e.target.value)}
+                                                disabled={!isEditing[`${index}-hint_0`]}
+                                                style={{ color: 'black', height: 'auto' }}
+                                            />
+                                            <div className="flex space-x-4 mt-2">
+                                                <Button size="sm" onClick={() => handleEditClick(`${index}-hint_0`)} {...MUI_ERROR}>
+                                                    {isEditing[`${index}-hint_0`] ? 'Zapisz' : 'Edytuj pierwszą podpowiedź'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </AccordionBody>
+                                </Accordion>
+
+                                <Accordion open={open === index + 100} icon={<Icon id={index + 100} open={open} />} {...MUI_ERROR}>
+                                    <AccordionHeader onClick={() => handleOpen(index + 100)} {...MUI_ERROR}>
+                                        Druga podpowiedź
                                     </AccordionHeader>
 
                                     <AccordionBody>
@@ -257,56 +302,21 @@ const Final: React.FC<{}> = () => {
                                                     }
                                                 )}
                                                 rows={3}
-                                                value={isEditing[`${index}-hint_1`] ? editedTask[`${index}-hint_1`] : task.hint_1}
+                                                value={isEditing[`${index}-hint_1`] ? editedTask[`${index}-hint_1`] : task.hints[1]}
                                                 onChange={(e) => handleTaskChange(`${index}-hint_1`, e.target.value)}
                                                 disabled={!isEditing[`${index}-hint_1`]}
                                                 style={{ color: 'black', height: 'auto' }}
                                             />
                                             <div className="flex space-x-4 mt-2">
                                                 <Button size="sm" onClick={() => handleEditClick(`${index}-hint_1`)} {...MUI_ERROR}>
-                                                    {isEditing[`${index}-hint_1`] ? 'Zapisz' : 'Edytuj pierwszą podpowiedź'}
+                                                    {isEditing[`${index}-hint_1`] ? 'Zapisz' : 'Edytuj drugą podpowiedź'}
                                                 </Button>
                                             </div>
                                         </div>
                                     </AccordionBody>
-
-                                </Accordion>
-
-                                <Accordion open={open === index + 100} icon={<Icon id={index + 100} open={open} />} {...MUI_ERROR}>
-
-                                    <AccordionHeader onClick={() => handleOpen(index + 100)} {...MUI_ERROR}>
-                                        Druga podpowiedź
-                                    </AccordionHeader>
-
-                                    <AccordionBody>
-                                        <div className="p-4 flex flex-col items-end">
-                                            <textarea
-                                                ref={(el) => (textAreaRefs.current[`${index}-hint_2`] = el)}
-                                                className={clsx(
-                                                    "w-full p-2 border rounded resize-none focus:outline-none focus:border-blue-500",
-                                                    {
-                                                        "border-gray-400": !isEditing[`${index}-hint_2`],
-                                                        "border-blue-500": isEditing[`${index}-hint_2`]
-                                                    }
-                                                )}
-                                                rows={3}
-                                                value={isEditing[`${index}-hint_2`] ? editedTask[`${index}-hint_2`] : task.hint_2}
-                                                onChange={(e) => handleTaskChange(`${index}-hint_2`, e.target.value)}
-                                                disabled={!isEditing[`${index}-hint_2`]}
-                                                style={{ color: 'black', height: 'auto' }}
-                                            />
-                                            <div className="flex space-x-4 mt-2">
-                                                <Button size="sm" onClick={() => handleEditClick(`${index}-hint_2`)} {...MUI_ERROR}>
-                                                    {isEditing[`${index}-hint_2`] ? 'Zapisz' : 'Edytuj drugą podpowiedź'}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </AccordionBody>
-
                                 </Accordion>
 
                                 <Accordion open={open === index + 200} icon={<Icon id={index + 200} open={open} />} {...MUI_ERROR}>
-
                                     <AccordionHeader onClick={() => handleOpen(index + 200)} {...MUI_ERROR}>
                                         Odpowiedź
                                     </AccordionHeader>
@@ -335,55 +345,36 @@ const Final: React.FC<{}> = () => {
                                             </div>
                                         </div>
                                     </AccordionBody>
-
                                 </Accordion>
-
                             </div>
-                        ))
-                    }
-
+                        ))}
                     <div className="flex justify-between mb-24">
-
-                        {!loading && 
+                        {!loading && (
                             <Button onClick={() => navigate('/prepare_prompt')} {...MUI_ERROR}>
-
                                 Zacznij od nowa!
-
                             </Button>
-                        }
+                        )}
 
-                        {taskSetId !== -1 && !loading && 
+                        {taskSetId !== -1 && !loading && (
                             <Popover placement="bottom" {...MUI_ERROR}>
-
                                 <PopoverHandler {...MUI_ERROR}>
-
-                                    <Button {...MUI_ERROR}>
-                                        Eksportuj do PDF
-                                    </Button>
-
+                                    <Button {...MUI_ERROR}>Eksportuj do PDF</Button>
                                 </PopoverHandler>
 
                                 <PopoverContent className="flex justify-center items-center p-4 gap-4" {...MUI_ERROR}>
-
                                     <Button variant="gradient" className="flex-shrink-0" onClick={() => exportPDF(true)} {...MUI_ERROR}>
-                                        Bez podpowiedzi
+                                        Zadania
                                     </Button>
 
                                     <Button variant="gradient" className="flex-shrink-0" onClick={() => exportPDF(false)} {...MUI_ERROR}>
-                                        Z podpowiedziami
+                                        Odpowiedzi
                                     </Button>
-
                                 </PopoverContent>
-
                             </Popover>
-                        }
-
+                        )}
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     );
 };
