@@ -202,7 +202,7 @@ const FinalWithUuid: React.FC<{}> = () => {
                     {loading ? (
                         <div>
                             <Typography variant="h3" {...MUI_ERROR}>
-                                Generujemy zadania dla Ciebie!
+                                Ładujemy zadania dla Ciebie!
                             </Typography>
                         </div>
                     ) : (
