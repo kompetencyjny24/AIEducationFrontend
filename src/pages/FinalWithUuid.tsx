@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Accordion, AccordionHeader, AccordionBody, Button, Spinner, Typography, Popover, PopoverContent, PopoverHandler } from "@material-tailwind/react";
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { MUI_ERROR } from "../components/MultiStepForm";
-import publiAxios from "../hooks/publiAxios";
 import axios from 'axios';
 import clsx from 'clsx';
 
@@ -47,7 +46,7 @@ const Icon: React.FC<IconProps> = ({ id, open }) => {
     );
 };
 
-const Final: React.FC<{}> = () => {
+const FinalWithUuid: React.FC<{}> = () => {
     const [loading, setLoading] = useState(true);
     const [taskSetId, setTaskSetId] = useState(-1);
     const [data, setData] = useState<Task[]>([]);
@@ -57,45 +56,31 @@ const Final: React.FC<{}> = () => {
     const textAreaRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({});
 
     const navigate = useNavigate();
-    const location = useLocation();
-    const params: TaskWithRedefinedPrompt = location.state;
+    const { uuid } = useParams<{ uuid: string }>();
 
     useEffect(() => {
-        setLoading(true);
+      const fetchData = async () => {
+        const response = await axios.get(`http://localhost:8080/api/v1/task/${uuid}`)
+        .then( response => {
+          const fetchedTasks = response.data.generatedTasks.map((task: any) => ({
+            id: task.id,
+            content: task.content,
+            hints: task.hints,
+            answer: task.answer
+          }));
 
-        if (params.taskParams.subject === '' || params.taskParams.topic === '' || params.taskParams.grade === '' || params.taskParams.hobby === '' || params.redefinedPrompt === '') {
-            setLoading(false);
-            return;
-        }
+          setData(fetchedTasks);
+          setTaskSetId(response.data.id);
+        }).catch(error => {
+          console.error(error.message);
+          navigate('/');
+        }).finally(() => {
+          setLoading(false);
+        });
+      };
 
-        const fetchData = async () => {
-            publiAxios.post('/task', {
-                "subject": !params.wasPromptEdited ? params.taskParams.subject : "",
-                "predefinedPrompt": params.wasPromptEdited ? params.redefinedPrompt : "",
-                "subjectSection": !params.wasPromptEdited ? params.taskParams.topic : "",
-                "hobby": !params.wasPromptEdited ? params.taskParams.hobby === "Brak" ? "" : params.taskParams.hobby : "",
-                "taskAmount": !params.wasPromptEdited ? params.taskParams.taskAmount : "",
-                "grade": !params.wasPromptEdited ? params.taskParams.grade : "",
-            }).then(response => {
-
-                const generatedTasks = response.data.generatedTasks.map((task: any) => ({
-                    id: task.id,
-                    content: task.content,
-                    hints: task.hints,
-                    answer: task.answer
-                }));
-
-                setData(generatedTasks);
-                setTaskSetId(response.data.id);
-            }).catch(error => {
-                console.log(error.message);
-            }).finally(() => {
-                setLoading(false);
-            });
-        };
-
-        fetchData();
-    }, []);
+      fetchData();
+    }, [uuid]);
 
     const handleOpen = (index: number) => {
         setOpen(open === index ? null : index);
@@ -191,8 +176,6 @@ const Final: React.FC<{}> = () => {
 
         fetchData();
     };
-
-    console.log(taskSetId);
 
     return (
         <div className="overflow-hidden p-0 min-h-dvh">
@@ -393,4 +376,4 @@ const Final: React.FC<{}> = () => {
     );
 };
 
-export default Final;
+export default FinalWithUuid;
