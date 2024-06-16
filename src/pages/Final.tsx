@@ -156,6 +156,10 @@ const Final: React.FC<{}> = () => {
         fetchData();
     };
 
+    if (!loading && !data) {
+        navigate('/generate');
+    }
+
     return (
         <div className="overflow-hidden p-0 min-h-dvh">
 
